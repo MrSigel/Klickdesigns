@@ -35,33 +35,24 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const isLoginPage = request.nextUrl.pathname.startsWith('/login')
+  const pathname = request.nextUrl.pathname
+  const isLoginPage = pathname.startsWith('/login')
+  const isAdminPage = pathname.startsWith('/admin')
 
-  if (!user && !isLoginPage) {
-    // no user, redirect to login (skip static)
-    if (
-      !request.nextUrl.pathname.startsWith('/_next') &&
-      !request.nextUrl.pathname.startsWith('/public')
-    ) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
-  }
-
-  // Logged in user on login page -> go to admin
+  // If logged in and trying to access login page → send to admin
   if (user && isLoginPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/admin'
     return NextResponse.redirect(url)
   }
 
-  // Protect /admin - basic (detailed role in page)
-  if (request.nextUrl.pathname.startsWith('/admin') && !user) {
+  // Protect only /admin routes: unauthenticated → login
+  if (isAdminPage && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
+  // All other routes (including landing page, legal pages etc.) are public
   return supabaseResponse
 }
