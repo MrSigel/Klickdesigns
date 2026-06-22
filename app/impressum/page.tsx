@@ -27,14 +27,14 @@ export default function ImpressumPage() {
 
       <LegalSection title="Kontakt">
         <p>
-          E-Mail: [OFFIZIELLE KLICKDESIGNS-E-MAIL EINTRAGEN]
+          E-Mail: kontakt@klickdesigns.de
           <br />
           Telefon: <a href="tel:+4915563535989" className="text-ruby underline underline-offset-2">+49 155 63535989</a>
         </p>
       </LegalSection>
 
       <LegalSection title="Umsatzsteuer-Identifikationsnummer">
-        <p>[USt-IdNr. bitte prüfen/eintragen]</p>
+        <p>DE278597389</p>
       </LegalSection>
 
       <LegalSection title="Verantwortlich für den Inhalt">
