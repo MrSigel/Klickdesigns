@@ -36,7 +36,7 @@ export default function WiderrufPage() {
           <br />
           44577 Castrop-Rauxel, Deutschland
           <br />
-          E-Mail: [OFFIZIELLE KLICKDESIGNS-E-MAIL EINTRAGEN]
+          E-Mail: kontakt@klickdesigns.de
           <br />
           Telefon: <a href="tel:+4915563535989" className="text-ruby underline underline-offset-2">+49 155 63535989</a>
         </p>
@@ -107,7 +107,7 @@ export default function WiderrufPage() {
             An Enrico Gross, Klickdesigns, Gerther Straße 76, 44577
             Castrop-Rauxel, Deutschland
             <br />
-            E-Mail: [OFFIZIELLE KLICKDESIGNS-E-MAIL EINTRAGEN]
+            E-Mail: kontakt@klickdesigns.de
           </p>
           <p>
             Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen

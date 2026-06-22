@@ -1,6 +1,5 @@
 export const SITE_NAME = "Klickdesigns";
 
-// TODO: Finale Klickdesigns-Domain eintragen
 export const SITE_URL = "http://localhost:3000";
 export const HAS_FINAL_DOMAIN = false;
 
