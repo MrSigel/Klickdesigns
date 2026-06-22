@@ -197,31 +197,44 @@ create table if not exists public.service_packages (
 
 create table if not exists public.offers (
   id uuid primary key default gen_random_uuid(),
+  offer_number text unique not null,
   customer_id uuid references public.customers(id) on delete set null,
   inquiry_id uuid references public.inquiries(id) on delete set null,
   title text not null,
-  service_type text not null,
-  amount_cents integer,
-  status text not null default 'draft',
+  intro_text text,
+  notes text,
+  subtotal_cents integer not null default 0,
+  discount_type text,
+  discount_value integer,
+  discount_cents integer not null default 0,
+  total_cents integer not null default 0,
+  currency text default 'EUR',
   valid_until date,
-  description text,
+  payment_terms text,
+  public_token text unique,
+  sent_at timestamptz,
+  accepted_at timestamptz,
+  rejected_at timestamptz,
+  converted_project_id uuid,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint offers_service_type_check check (
-    service_type in (
-      'logo_sprint',
-      'logo_vectorization',
-      'design_finalization',
-      'business_presence',
-      'other'
-    )
-  ),
   constraint offers_status_check check (
     status in ('draft', 'sent', 'accepted', 'rejected', 'expired')
-  ),
-  constraint offers_amount_cents_check check (
-    amount_cents is null or amount_cents >= 0
   )
+);
+
+create table if not exists public.offer_items (
+  id uuid primary key default gen_random_uuid(),
+  offer_id uuid references public.offers(id) on delete cascade not null,
+  service_package_id uuid references public.service_packages(id) on delete set null,
+  title text not null,
+  description text,
+  quantity numeric default 1,
+  unit_price_cents integer not null default 0,
+  total_cents integer not null default 0,
+  sort_order integer default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create table if not exists public.invoices (
@@ -275,6 +288,15 @@ create index if not exists offers_status_idx
   on public.offers (status);
 create index if not exists offers_created_at_idx
   on public.offers (created_at desc);
+
+create index if not exists offers_offer_number_idx
+  on public.offers (offer_number);
+
+create index if not exists offers_public_token_idx
+  on public.offers (public_token);
+
+create index if not exists offer_items_offer_id_idx
+  on public.offer_items (offer_id);
 
 create index if not exists invoices_customer_id_idx
   on public.invoices (customer_id);
@@ -330,6 +352,11 @@ create trigger offers_set_updated_at
 before update on public.offers
 for each row execute function public.set_updated_at();
 
+drop trigger if exists offer_items_set_updated_at on public.offer_items;
+create trigger offer_items_set_updated_at
+before update on public.offer_items
+for each row execute function public.set_updated_at();
+
 drop trigger if exists invoices_set_updated_at on public.invoices;
 create trigger invoices_set_updated_at
 before update on public.invoices
@@ -347,6 +374,7 @@ alter table public.project_files enable row level security;
 alter table public.activity_logs enable row level security;
 alter table public.service_packages enable row level security;
 alter table public.offers enable row level security;
+alter table public.offer_items enable row level security;
 alter table public.invoices enable row level security;
 
 create or replace function public.is_admin()
@@ -375,7 +403,12 @@ revoke all on table public.project_files from anon;
 revoke all on table public.activity_logs from anon;
 revoke all on table public.service_packages from anon;
 revoke all on table public.offers from anon;
+revoke all on table public.offer_items from anon;
 revoke all on table public.invoices from anon;
+
+-- Allow public read for offers by token (for customer acceptance)
+grant select on table public.offers to anon;
+grant select on table public.offer_items to anon;
 
 grant select, insert, update, delete on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.customers to authenticated;
@@ -385,6 +418,7 @@ grant select, insert, update, delete on table public.project_files to authentica
 grant select, insert, update, delete on table public.activity_logs to authenticated;
 grant select, insert, update, delete on table public.service_packages to authenticated;
 grant select, insert, update, delete on table public.offers to authenticated;
+grant select, insert, update, delete on table public.offer_items to authenticated;
 grant select, insert, update, delete on table public.invoices to authenticated;
 
 drop policy if exists "Admins manage profiles" on public.profiles;
@@ -450,6 +484,26 @@ for all
 to authenticated
 using (public.is_admin())
 with check (public.is_admin());
+
+create policy "Public can view offer by token"
+on public.offers
+for select
+to anon
+using (public_token is not null);
+
+drop policy if exists "Admins manage offer_items" on public.offer_items;
+create policy "Admins manage offer_items"
+on public.offer_items
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+create policy "Public can view offer items by token"
+on public.offer_items
+for select
+to anon
+using (offer_id in (select id from public.offers where public_token is not null));
 
 drop policy if exists "Admins manage invoices" on public.invoices;
 create policy "Admins manage invoices"
