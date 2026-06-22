@@ -38,6 +38,15 @@ create table if not exists public.customers (
 ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS customer_type text;
 ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'interessent';
 
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS name text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS email text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS phone text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS company text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS project_name text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS source text DEFAULT 'website';
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS consent_privacy boolean DEFAULT false;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS confirmation_email_sent_at timestamptz;
+
 -- Constraints for customers
 ALTER TABLE public.customers
   DROP CONSTRAINT IF EXISTS customers_status_check;
@@ -61,20 +70,31 @@ CREATE INDEX IF NOT EXISTS customers_created_at_idx ON public.customers (created
 create table if not exists public.inquiries (
   id uuid primary key default gen_random_uuid(),
   customer_id uuid references public.customers(id) on delete set null,
-  service_type text not null,
+  name text not null,
+  email text not null,
+  phone text,
+  company text,
+  project_name text,
+  service_type text,
   existing_material text,
   message text not null,
   status text not null default 'new',
   priority text not null default 'normal',
+  source text default 'website',
   internal_notes text,
+  consent_privacy boolean default false,
+  confirmation_email_sent_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint inquiries_service_type_check check (
-    service_type in (
+    service_type is null or service_type in (
       'logo_sprint',
       'logo_vectorization',
       'design_finalization',
       'business_presence',
+      'sticker_design',
+      'social_media_design',
+      'flyer_design',
       'other'
     )
   ),
@@ -268,6 +288,17 @@ create index if not exists inquiries_service_type_idx
 create index if not exists inquiries_created_at_idx
   on public.inquiries (created_at desc);
 
+create index if not exists inquiries_email_idx
+  on public.inquiries (email);
+create index if not exists inquiries_status_idx
+  on public.inquiries (status);
+create index if not exists inquiries_service_type_idx
+  on public.inquiries (service_type);
+create index if not exists inquiries_priority_idx
+  on public.inquiries (priority);
+create index if not exists inquiries_customer_id_idx
+  on public.inquiries (customer_id);
+
 create index if not exists customers_email_idx
   on public.customers (email);
 
@@ -444,6 +475,15 @@ for all
 to authenticated
 using (public.is_admin())
 with check (public.is_admin());
+
+-- Public insert for website form (validated server-side)
+grant insert on table public.inquiries to anon;
+
+create policy "Public can insert inquiries from website"
+on public.inquiries
+for insert
+to anon
+with check (true);
 
 drop policy if exists "Admins manage projects" on public.projects;
 create policy "Admins manage projects"

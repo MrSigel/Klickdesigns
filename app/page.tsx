@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useRef, type ReactNode, type FormEvent } from "react";
+import { submitInquiry } from "./actions/submit-inquiry";
 import {
   motion,
   AnimatePresence,
@@ -1338,10 +1339,20 @@ function Contact() {
   const [have, setHave] = useState(haveOptions[0]);
   const [submitted, setSubmitted] = useState(false);
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // Reines Frontend: keine echte Übermittlung, keine Backend-Anbindung.
-    setSubmitted(true);
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    // add controlled values
+    data.set('service', service);
+    data.set('have', have);
+    const result = await submitInquiry(data);
+    if (result?.success) {
+      setSubmitted(true);
+    } else if (result?.error) {
+      // simple error for now
+      alert(result.error);
+    }
   }
 
   return (
@@ -1409,6 +1420,7 @@ function Contact() {
                   <input
                     required
                     type="text"
+                    name="name"
                     className="briefing-input mt-3 w-full"
                   />
                 </label>
@@ -1417,6 +1429,7 @@ function Contact() {
                   <input
                     required
                     type="email"
+                    name="email"
                     className="briefing-input mt-3 w-full"
                   />
                 </label>
@@ -1428,6 +1441,7 @@ function Contact() {
                 </span>
                 <input
                   type="text"
+                  name="company"
                   className="briefing-input mt-3 w-full"
                 />
               </label>
@@ -1466,6 +1480,7 @@ function Contact() {
                 </span>
                 <textarea
                   rows={5}
+                  name="message"
                   className="briefing-input mt-3 min-h-[150px] w-full resize-none"
                 />
               </label>
