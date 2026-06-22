@@ -24,13 +24,39 @@ create table if not exists public.customers (
   name text not null,
   email text not null,
   phone text,
+  customer_type text,
   company text,
   project_name text,
   source text,
+  status text not null default 'interessent',
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Upgrade for existing installations
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS customer_type text;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'interessent';
+
+-- Constraints for customers
+ALTER TABLE public.customers
+  DROP CONSTRAINT IF EXISTS customers_status_check;
+ALTER TABLE public.customers
+  ADD CONSTRAINT customers_status_check
+  CHECK (status IN ('interessent', 'kunde', 'stammkunde', 'archiviert'));
+
+ALTER TABLE public.customers
+  DROP CONSTRAINT IF EXISTS customers_customer_type_check;
+ALTER TABLE public.customers
+  ADD CONSTRAINT customers_customer_type_check
+  CHECK (customer_type IS NULL OR customer_type IN ('unternehmen', 'verein', 'creator', 'privatkunde', 'shop', 'sonstiges'));
+
+-- Indexes for customers
+CREATE INDEX IF NOT EXISTS customers_name_idx ON public.customers (name);
+CREATE INDEX IF NOT EXISTS customers_company_idx ON public.customers (company);
+CREATE INDEX IF NOT EXISTS customers_status_idx ON public.customers (status);
+CREATE INDEX IF NOT EXISTS customers_source_idx ON public.customers (source);
+CREATE INDEX IF NOT EXISTS customers_created_at_idx ON public.customers (created_at DESC);
 
 create table if not exists public.inquiries (
   id uuid primary key default gen_random_uuid(),
