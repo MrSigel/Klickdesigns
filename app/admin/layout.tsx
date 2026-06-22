@@ -37,8 +37,8 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-offwhite">
       <AdminSidebar />
-      <div className="md:pl-60">
-        <main className="p-6 md:p-8">{children}</main>
+      <div className="md:pl-[280px]">
+        <main className="mx-auto max-w-6xl p-8 md:p-10">{children}</main>
       </div>
     </div>
   )

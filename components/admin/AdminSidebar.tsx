@@ -3,16 +3,21 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import AdminSidebarClock from './AdminSidebarClock'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard' },
+  { href: '/admin/anfragen', label: 'Anfragen' },
   { href: '/admin/kunden', label: 'Kunden' },
   { href: '/admin/angebot', label: 'Angebot' },
   { href: '/admin/rechnung', label: 'Rechnung' },
   { href: '/admin/akquise', label: 'Akquise' },
   { href: '/admin/suchen', label: 'Suchen' },
   { href: '/admin/social-media', label: 'Social Media' },
+  { href: '/admin/referenzen', label: 'Referenzen' },
   { href: '/admin/archiv', label: 'Archiv' },
+  { href: '/admin/einstellungen', label: 'Einstellungen' },
+  { href: '/admin/profil', label: 'Profil' },
 ]
 
 export default function AdminSidebar() {
@@ -21,6 +26,13 @@ export default function AdminSidebar() {
 
   const toggle = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
+
+  const handleLogout = async () => {
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    window.location.href = '/login'
+  }
 
   return (
     <>
@@ -31,7 +43,7 @@ export default function AdminSidebar() {
             <div className="flex h-7 w-7 items-center justify-center rounded-full border border-anthracite/30 bg-anthracite text-xs font-semibold text-offwhite">
               K
             </div>
-            <span className="font-display text-sm font-semibold tracking-tight text-anthracite">Admin</span>
+            <span className="font-display text-sm font-semibold tracking-tight text-anthracite">Klickdesigns</span>
           </div>
           <button
             onClick={toggle}
@@ -45,24 +57,29 @@ export default function AdminSidebar() {
         </div>
       </div>
 
-      {/* Sidebar */}
+      {/* Sidebar - fixed full height, fixed width */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-60 border-r border-anthracite/10 bg-white transition-transform md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-anthracite/10 bg-white transition-transform md:static md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:flex md:flex-col`}
+        }`}
       >
-        <div className="flex h-14 items-center border-b border-anthracite/10 px-4 md:h-[60px]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-anthracite/30 bg-anthracite text-xs font-semibold text-offwhite">
+        {/* Top fixed header */}
+        <div className="flex h-16 items-center border-b border-anthracite/10 px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-anthracite/30 bg-anthracite text-sm font-semibold text-offwhite">
               K
             </div>
-            <span className="font-display text-[15px] font-semibold tracking-[-0.015em] text-anthracite">
-              Klickdesigns
-            </span>
+            <div>
+              <div className="font-display text-[15px] font-semibold tracking-[-0.015em] text-anthracite">
+                Klickdesigns
+              </div>
+              <div className="text-[10px] text-anthracite/50">Adminbereich</div>
+            </div>
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4 text-sm">
+        {/* Middle scrollable nav */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 text-sm">
           {navItems.map((item) => {
             const isActive = pathname === item.href
             return (
@@ -70,10 +87,10 @@ export default function AdminSidebar() {
                 key={item.href}
                 href={item.href}
                 onClick={close}
-                className={`mx-2 mb-0.5 flex items-center rounded-md px-3 py-2.5 transition-colors ${
+                className={`mb-0.5 flex items-center rounded-md px-3 py-[9px] transition-all ${
                   isActive
-                    ? 'bg-anthracite text-offwhite'
-                    : 'text-anthracite/85 hover:bg-anthracite/5 hover:text-anthracite'
+                    ? 'bg-anthracite/5 text-anthracite border-l-2 border-ruby pl-[11px]'
+                    : 'text-anthracite/80 hover:bg-anthracite/5 hover:text-anthracite pl-3'
                 }`}
               >
                 {item.label}
@@ -82,15 +99,26 @@ export default function AdminSidebar() {
           })}
         </nav>
 
-        <div className="border-t border-anthracite/10 p-3">
+        {/* Bottom fixed area */}
+        <div className="border-t border-anthracite/10 px-5 py-5">
+          {/* Subtle animated accent */}
+          <div className="mb-3 h-px w-6 bg-gradient-to-r from-ruby/40 to-transparent">
+            <div className="h-px w-6 animate-[pulse_4s_ease-in-out_infinite] bg-ruby/30" />
+          </div>
+
+          <AdminSidebarClock />
+
+          <Link
+            href="/"
+            className="mt-4 block w-full rounded-md border border-anthracite/20 bg-white px-4 py-2 text-center text-[13px] font-medium text-anthracite transition hover:border-ruby/40 hover:bg-white hover:text-ruby"
+          >
+            Zur Startseite
+          </Link>
+
+          {/* Subtle logout as second action */}
           <button
-            onClick={async () => {
-              const { createClient } = await import('@/lib/supabase/client')
-              const supabase = createClient()
-              await supabase.auth.signOut()
-              window.location.href = '/login'
-            }}
-            className="w-full rounded-md border border-anthracite/15 px-3 py-1.5 text-left text-xs text-anthracite/70 transition hover:bg-anthracite/5 hover:text-anthracite"
+            onClick={handleLogout}
+            className="mt-2 w-full text-left text-[11px] text-anthracite/50 transition hover:text-anthracite"
           >
             Abmelden
           </button>
