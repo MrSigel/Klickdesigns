@@ -1,0 +1,288 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fff8f0;
+  color: #1f1b1b;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: #990000;
+  color: #fff8f0;
+}
+
+/* Visible keyboard focus everywhere */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #990000;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Selection-handle frame: the recurring "design tool" signature element */
+.handle-frame {
+  position: relative;
+}
+
+.handle-frame > .handle-tl,
+.handle-frame > .handle-tr,
+.handle-frame > .handle-bl,
+.handle-frame > .handle-br {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid #990000;
+  background: #fff8f0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.handle-tl {
+  top: -5px;
+  left: -5px;
+}
+.handle-tr {
+  top: -5px;
+  right: -5px;
+}
+.handle-bl {
+  bottom: -5px;
+  left: -5px;
+}
+.handle-br {
+  bottom: -5px;
+  right: -5px;
+}
+
+@media (max-width: 640px) {
+  .handle-frame > .handle-tl,
+  .handle-frame > .handle-tr,
+  .handle-frame > .handle-bl,
+  .handle-frame > .handle-br {
+    display: none;
+  }
+}
+
+.dot-grid-bg {
+  background-image: radial-gradient(
+    circle,
+    rgba(31, 27, 27, 0.12) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+.dot-grid-bg-light {
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 248, 240, 0.18) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Shared premium surface treatment for the existing landing-page cards. */
+.premium-card {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85) inset,
+    0 18px 45px -36px rgba(31, 27, 27, 0.48);
+  transition:
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.premium-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(153, 0, 0, 0.2);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 28px 58px -36px rgba(31, 27, 27, 0.42);
+}
+
+.hero-premium {
+  isolation: isolate;
+  background-color: #fff8f0;
+  background-image:
+    linear-gradient(rgba(255, 248, 240, 0.7), rgba(255, 248, 240, 0.92)),
+    radial-gradient(circle, rgba(31, 27, 27, 0.12) 1px, transparent 1px);
+  background-size: auto, 24px 24px;
+}
+
+.hero-premium::before {
+  content: "";
+  position: absolute;
+  width: 34rem;
+  height: 34rem;
+  right: -8rem;
+  top: 2rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 204, 153, 0.52), rgba(255, 204, 153, 0) 68%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-premium::after {
+  content: "";
+  position: absolute;
+  width: 22rem;
+  height: 22rem;
+  left: -11rem;
+  bottom: -8rem;
+  border: 1px solid rgba(153, 0, 0, 0.12);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 3rem rgba(153, 0, 0, 0.025),
+    0 0 0 6rem rgba(153, 0, 0, 0.018);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-canvas::before {
+  content: "";
+  position: absolute;
+  inset: -2rem 1.4rem 2rem -1.4rem;
+  border: 1px solid rgba(153, 0, 0, 0.12);
+  border-radius: 0.9rem;
+  transform: rotate(-3deg);
+  pointer-events: none;
+}
+
+.hero-canvas::after {
+  content: "";
+  position: absolute;
+  width: 9rem;
+  height: 6rem;
+  right: -2.25rem;
+  bottom: -2rem;
+  background-image: radial-gradient(circle, rgba(153, 0, 0, 0.32) 1px, transparent 1px);
+  background-size: 10px 10px;
+  mask-image: linear-gradient(to bottom left, #000, transparent 78%);
+  pointer-events: none;
+}
+
+.compare-before {
+  position: relative;
+  overflow: hidden;
+}
+
+.compare-before::after {
+  content: "";
+  position: absolute;
+  width: 4.5rem;
+  height: 1px;
+  right: -0.5rem;
+  top: 1.5rem;
+  background: rgba(31, 27, 27, 0.16);
+  transform: rotate(-8deg);
+}
+
+.template-preview {
+  background-image:
+    linear-gradient(rgba(31, 27, 27, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 27, 27, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 50% 48%, rgba(255, 204, 153, 0.38), transparent 44%);
+  background-size: 18px 18px, 18px 18px, auto;
+}
+
+.template-preview::before,
+.template-preview::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(153, 0, 0, 0.38);
+  background: #fff8f0;
+  transition: transform 350ms ease;
+}
+
+.template-preview::before {
+  left: calc(50% - 43px);
+  top: calc(50% - 43px);
+}
+
+.template-preview::after {
+  right: calc(50% - 43px);
+  bottom: calc(50% - 43px);
+}
+
+.group:hover .template-preview::before {
+  transform: translate(-3px, -3px);
+}
+
+.group:hover .template-preview::after {
+  transform: translate(3px, 3px);
+}
+
+.contact-premium {
+  background:
+    radial-gradient(circle at 10% 15%, rgba(255, 204, 153, 0.25), transparent 25rem),
+    linear-gradient(180deg, #fff8f0 0%, #fff 100%);
+}
+
+.briefing-input {
+  border: 1px solid rgba(31, 27, 27, 0.14);
+  border-radius: 0.5rem;
+  background: rgba(255, 248, 240, 0.72);
+  padding: 0.875rem 1rem;
+  color: #1f1b1b;
+  font-size: 0.9375rem;
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.briefing-input:focus {
+  border-color: rgba(153, 0, 0, 0.7);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(153, 0, 0, 0.08);
+}
+
+@media (max-width: 1023px) {
+  .hero-premium::before {
+    right: -14rem;
+    top: 15rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-canvas::before {
+    inset: -1rem 0.75rem 1rem -0.75rem;
+  }
+
+  .hero-canvas::after {
+    right: -1rem;
+  }
+
+  .premium-card:hover {
+    transform: none;
+  }
+}

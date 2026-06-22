@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Klickdesigns Logo Mark">
+  
+  <g filter="none">
+    <rect x="48" y="42" width="36" height="172" rx="7" fill="#1F1B1B"/>
+    <path d="M92 128 L176 42 H222 L129 139 Z" fill="#1F1B1B"/>
+    <path d="M124 117 L224 214 H176 L92 143 Z" fill="#1F1B1B"/>
+    <circle cx="176" cy="122" r="10" fill="#1F1B1B"/>
+  </g>
+</svg>
