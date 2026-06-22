@@ -23,85 +23,6 @@ async function getData() {
   }
 }
 
-async function createOffer(formData: FormData) {
-  'use server'
-
-  const supabase = await createClient()
-
-  const customer_id = formData.get('customer_id') as string
-  const inquiry_id = formData.get('inquiry_id') as string || null
-  const title = formData.get('title') as string
-  const intro_text = formData.get('intro_text') as string || null
-  const valid_until = formData.get('valid_until') as string || null
-  const payment_terms = formData.get('payment_terms') as string || null
-  const notes = formData.get('notes') as string || null
-
-  if (!customer_id || !title) {
-    return
-  }
-
-  // Generate offer_number
-  const offer_number = 'AN-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.random().toString(36).slice(2, 6).toUpperCase()
-
-  // Generate public_token
-  const public_token = crypto.randomUUID()
-
-  // For simplicity, calculate from items later
-  // For now, basic insert, items in separate
-
-  const { data: offer, error } = await supabase
-    .from('offers')
-    .insert({
-      offer_number,
-      customer_id,
-      inquiry_id,
-      title,
-      intro_text,
-      notes,
-      valid_until: valid_until || null,
-      payment_terms,
-      public_token,
-      subtotal_cents: 0,
-      discount_cents: 0,
-      total_cents: 0,
-    })
-    .select('id')
-    .single()
-
-  if (error || !offer) {
-    console.error('Create offer error', error)
-    return
-  }
-
-  // Add items - for this, parse from form (simple for 1-3 items)
-  // In real, would parse dynamic, but for this, add basic from package if selected
-  const pkgId = formData.get('package_id') as string
-  if (pkgId) {
-    const pkg = (await supabase.from('service_packages').select('*').eq('id', pkgId).single()).data
-    if (pkg) {
-      const unit = pkg.price_cents || 0
-      await supabase.from('offer_items').insert({
-        offer_id: offer.id,
-        service_package_id: pkgId,
-        title: pkg.name,
-        description: pkg.description,
-        quantity: 1,
-        unit_price_cents: unit,
-        total_cents: unit,
-      })
-    }
-  }
-
-  // Update totals simple
-  await supabase
-    .from('offers')
-    .update({ subtotal_cents: 0, total_cents: 0 })
-    .eq('id', offer.id)
-
-  revalidatePath('/admin/angebot')
-  redirect(`/admin/angebot/${offer.id}`)
-}
-
 export default async function NewOfferPage() {
   const { customers, inquiries, packages } = await getData()
 
@@ -114,7 +35,73 @@ export default async function NewOfferPage() {
       <h1 className="font-display text-[28px] font-bold tracking-[-0.035em] text-anthracite mb-1">Neues Angebot erstellen</h1>
       <p className="text-anthracite/70 mb-8">Angebot aus Kunde/Anfrage erstellen.</p>
 
-      <form action={createOffer} className="space-y-6">
+      <form action={async (formData: FormData) => {
+        'use server'
+        const supabase = await createClient()
+
+        const customer_id = formData.get('customer_id') as string
+        const inquiry_id = formData.get('inquiry_id') as string || null
+        const title = formData.get('title') as string
+        const intro_text = formData.get('intro_text') as string || null
+        const valid_until = formData.get('valid_until') as string || null
+        const payment_terms = formData.get('payment_terms') as string || null
+        const notes = formData.get('notes') as string || null
+
+        if (!customer_id || !title) {
+          return
+        }
+
+        const offer_number = 'AN-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.random().toString(36).slice(2,6).toUpperCase()
+        const public_token = crypto.randomUUID()
+
+        const { data: offer, error } = await supabase
+          .from('offers')
+          .insert({
+            offer_number,
+            customer_id,
+            inquiry_id,
+            title,
+            intro_text,
+            notes,
+            valid_until: valid_until || null,
+            payment_terms,
+            public_token,
+            subtotal_cents: 0,
+            discount_cents: 0,
+            total_cents: 0,
+            status: 'draft',
+          })
+          .select('id')
+          .single()
+
+        if (error || !offer) {
+          console.error('Create offer error', error)
+          return
+        }
+
+        // simple item from package
+        const pkgId = formData.get('package_id') as string
+        if (pkgId) {
+          const pkg = (await supabase.from('service_packages').select('*').eq('id', pkgId).single()).data
+          if (pkg) {
+            const unit = pkg.price_cents || 0
+            await supabase.from('offer_items').insert({
+              offer_id: offer.id,
+              service_package_id: pkgId,
+              title: pkg.name,
+              description: pkg.description,
+              quantity: 1,
+              unit_price_cents: unit,
+              total_cents: unit,
+            })
+          }
+        }
+
+        await supabase.from('offers').update({ subtotal_cents: 0, total_cents: 0 }).eq('id', offer.id)
+
+        revalidatePath('/admin/angebot')
+        redirect(`/admin/angebot/${offer.id}`)
+      }} className="space-y-6">
         <div>
           <label className="block text-sm font-medium mb-1">Kunde *</label>
           <select name="customer_id" required className="w-full rounded-md border border-anthracite/15 bg-white px-3 py-2 text-sm">

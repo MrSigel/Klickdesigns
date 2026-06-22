@@ -47,6 +47,8 @@ ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS source text DEFAULT 'websi
 ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS consent_privacy boolean DEFAULT false;
 ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS confirmation_email_sent_at timestamptz;
 
+ALTER TABLE public.offers ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'draft';
+
 -- Constraints for customers
 ALTER TABLE public.customers
   DROP CONSTRAINT IF EXISTS customers_status_check;
@@ -236,6 +238,7 @@ create table if not exists public.offers (
   accepted_at timestamptz,
   rejected_at timestamptz,
   converted_project_id uuid,
+  status text not null default 'draft',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint offers_status_check check (
@@ -325,6 +328,13 @@ create index if not exists offers_offer_number_idx
 
 create index if not exists offers_public_token_idx
   on public.offers (public_token);
+
+create index if not exists offers_customer_id_idx
+  on public.offers (customer_id);
+create index if not exists offers_inquiry_id_idx
+  on public.offers (inquiry_id);
+create index if not exists offers_status_idx
+  on public.offers (status);
 
 create index if not exists offer_items_offer_id_idx
   on public.offer_items (offer_id);

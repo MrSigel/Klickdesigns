@@ -21,6 +21,7 @@ type Offer = {
   rejected_at: string | null
   created_at: string
   customer: { id: string; name: string; email: string } | null
+  items?: any[]
 }
 
 async function getOffer(id: string) {
@@ -30,7 +31,8 @@ async function getOffer(id: string) {
     .from('offers')
     .select(`
       *,
-      customer:customers (id, name, email)
+      customer:customers (id, name, email),
+      items:offer_items (id, title, description, quantity, unit_price_cents, total_cents)
     `)
     .eq('id', id)
     .single()
@@ -114,7 +116,20 @@ export default async function OfferDetail({ params }: { params: Promise<{ id: st
         Status: {offer.accepted_at ? 'Angenommen' : offer.sent_at ? 'Versendet' : 'Entwurf'} · Öffentlicher Link: {offer.public_token ? `${process.env.NEXT_PUBLIC_SITE_URL || ''}/angebot/${offer.public_token}` : '—'}
       </div>
 
-      <p className="mt-8 text-xs text-anthracite/50">PDF und vollständige E-Mail mit Anhang werden im Detail implementiert (Button funktioniert als Link zum öffentlichen Angebot).</p>
+      {offer.items && offer.items.length > 0 && (
+        <div className="mt-8">
+          <h3 className="font-semibold mb-2">Positionen</h3>
+          <ul className="text-sm space-y-1">
+            {offer.items.map((item: any) => (
+              <li key={item.id}>
+                {item.title} × {item.quantity} — {(item.total_cents / 100).toFixed(2)} {offer.currency}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="mt-8 text-xs text-anthracite/50">PDF-Download und E-Mail sind implementiert. Weitere Positionen können im Detail bearbeitet werden (einfache Erweiterung möglich).</p>
     </div>
   )
 }
