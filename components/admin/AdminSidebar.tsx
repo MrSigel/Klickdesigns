@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import Image from 'next/image'
 import AdminSidebarClock from './AdminSidebarClock'
 
 const navItems = [
@@ -40,9 +41,13 @@ export default function AdminSidebar() {
       <div className="fixed top-0 left-0 right-0 z-40 border-b border-anthracite/10 bg-white px-4 py-3 md:hidden">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-anthracite/30 bg-anthracite text-xs font-semibold text-offwhite">
-              K
-            </div>
+            <Image
+              src="/brand/klickdesigns-mark.svg"
+              alt="Klickdesigns"
+              width={28}
+              height={28}
+              className="h-7 w-7"
+            />
             <span className="font-display text-sm font-semibold tracking-tight text-anthracite">Klickdesigns</span>
           </div>
           <button
@@ -66,9 +71,13 @@ export default function AdminSidebar() {
         {/* Top fixed header */}
         <div className="flex h-16 items-center border-b border-anthracite/10 px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-anthracite/30 bg-anthracite text-sm font-semibold text-offwhite">
-              K
-            </div>
+            <Image
+              src="/brand/klickdesigns-mark.svg"
+              alt="Klickdesigns"
+              width={32}
+              height={32}
+              className="h-8 w-8"
+            />
             <div>
               <div className="font-display text-[15px] font-semibold tracking-[-0.015em] text-anthracite">
                 Klickdesigns
