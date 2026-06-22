@@ -169,6 +169,53 @@ create table if not exists public.service_packages (
   constraint service_packages_sort_order_check check (sort_order >= 0)
 );
 
+create table if not exists public.offers (
+  id uuid primary key default gen_random_uuid(),
+  customer_id uuid references public.customers(id) on delete set null,
+  inquiry_id uuid references public.inquiries(id) on delete set null,
+  title text not null,
+  service_type text not null,
+  amount_cents integer,
+  status text not null default 'draft',
+  valid_until date,
+  description text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint offers_service_type_check check (
+    service_type in (
+      'logo_sprint',
+      'logo_vectorization',
+      'design_finalization',
+      'business_presence',
+      'other'
+    )
+  ),
+  constraint offers_status_check check (
+    status in ('draft', 'sent', 'accepted', 'rejected', 'expired')
+  ),
+  constraint offers_amount_cents_check check (
+    amount_cents is null or amount_cents >= 0
+  )
+);
+
+create table if not exists public.invoices (
+  id uuid primary key default gen_random_uuid(),
+  customer_id uuid references public.customers(id) on delete set null,
+  offer_id uuid references public.offers(id) on delete set null,
+  title text not null,
+  amount_cents integer not null,
+  status text not null default 'draft',
+  due_date date,
+  paid_at timestamptz,
+  description text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint invoices_status_check check (
+    status in ('draft', 'sent', 'paid', 'overdue', 'cancelled')
+  ),
+  constraint invoices_amount_cents_check check (amount_cents >= 0)
+);
+
 -- =============================================================================
 -- Indexes
 -- =============================================================================
@@ -193,6 +240,24 @@ create index if not exists project_files_project_id_idx
 
 create index if not exists activity_logs_entity_idx
   on public.activity_logs (entity_type, entity_id);
+
+create index if not exists offers_customer_id_idx
+  on public.offers (customer_id);
+create index if not exists offers_inquiry_id_idx
+  on public.offers (inquiry_id);
+create index if not exists offers_status_idx
+  on public.offers (status);
+create index if not exists offers_created_at_idx
+  on public.offers (created_at desc);
+
+create index if not exists invoices_customer_id_idx
+  on public.invoices (customer_id);
+create index if not exists invoices_offer_id_idx
+  on public.invoices (offer_id);
+create index if not exists invoices_status_idx
+  on public.invoices (status);
+create index if not exists invoices_created_at_idx
+  on public.invoices (created_at desc);
 
 -- =============================================================================
 -- Triggers
@@ -234,6 +299,16 @@ create trigger service_packages_set_updated_at
 before update on public.service_packages
 for each row execute function public.set_updated_at();
 
+drop trigger if exists offers_set_updated_at on public.offers;
+create trigger offers_set_updated_at
+before update on public.offers
+for each row execute function public.set_updated_at();
+
+drop trigger if exists invoices_set_updated_at on public.invoices;
+create trigger invoices_set_updated_at
+before update on public.invoices
+for each row execute function public.set_updated_at();
+
 -- =============================================================================
 -- RLS
 -- =============================================================================
@@ -245,6 +320,8 @@ alter table public.projects enable row level security;
 alter table public.project_files enable row level security;
 alter table public.activity_logs enable row level security;
 alter table public.service_packages enable row level security;
+alter table public.offers enable row level security;
+alter table public.invoices enable row level security;
 
 create or replace function public.is_admin()
 returns boolean
@@ -271,6 +348,8 @@ revoke all on table public.projects from anon;
 revoke all on table public.project_files from anon;
 revoke all on table public.activity_logs from anon;
 revoke all on table public.service_packages from anon;
+revoke all on table public.offers from anon;
+revoke all on table public.invoices from anon;
 
 grant select, insert, update, delete on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.customers to authenticated;
@@ -279,6 +358,8 @@ grant select, insert, update, delete on table public.projects to authenticated;
 grant select, insert, update, delete on table public.project_files to authenticated;
 grant select, insert, update, delete on table public.activity_logs to authenticated;
 grant select, insert, update, delete on table public.service_packages to authenticated;
+grant select, insert, update, delete on table public.offers to authenticated;
+grant select, insert, update, delete on table public.invoices to authenticated;
 
 drop policy if exists "Admins manage profiles" on public.profiles;
 create policy "Admins manage profiles"
@@ -331,6 +412,22 @@ with check (public.is_admin());
 drop policy if exists "Admins manage service packages" on public.service_packages;
 create policy "Admins manage service packages"
 on public.service_packages
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins manage offers" on public.offers;
+create policy "Admins manage offers"
+on public.offers
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins manage invoices" on public.invoices;
+create policy "Admins manage invoices"
+on public.invoices
 for all
 to authenticated
 using (public.is_admin())
