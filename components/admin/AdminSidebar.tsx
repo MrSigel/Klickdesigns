@@ -64,9 +64,9 @@ export default function AdminSidebar() {
 
       {/* Sidebar - fixed full height, fixed width */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-anthracite/10 bg-white transition-transform md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-anthracite/10 bg-white transition-transform ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        } md:translate-x-0`}
       >
         {/* Top fixed header */}
         <div className="flex h-16 items-center border-b border-anthracite/10 px-6">
@@ -87,7 +87,7 @@ export default function AdminSidebar() {
           </div>
         </div>
 
-        {/* Middle scrollable nav */}
+        {/* Middle scrollable nav - takes remaining space */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 text-sm">
           {navItems.map((item) => {
             const isActive = pathname === item.href
@@ -109,28 +109,22 @@ export default function AdminSidebar() {
         </nav>
 
         {/* Bottom fixed area */}
-        <div className="border-t border-anthracite/10 px-5 py-5">
+        <div className="border-t border-anthracite/10 px-5 py-5 text-center">
           {/* Subtle animated accent */}
-          <div className="mb-3 h-px w-6 bg-gradient-to-r from-ruby/40 to-transparent">
-            <div className="h-px w-6 animate-[pulse_4s_ease-in-out_infinite] bg-ruby/30" />
+          <div className="mb-3 flex justify-center">
+            <div className="h-px w-6 bg-gradient-to-r from-ruby/40 to-transparent">
+              <div className="h-px w-6 animate-[pulse_4s_ease-in-out_infinite] bg-ruby/30" />
+            </div>
           </div>
 
           <AdminSidebarClock />
 
           <Link
             href="/"
-            className="mt-4 block w-full rounded-md border border-anthracite/20 bg-white px-4 py-2 text-center text-[13px] font-medium text-anthracite transition hover:border-ruby/40 hover:bg-white hover:text-ruby"
+            className="mt-4 block w-full rounded-md border border-ruby px-4 py-2 text-center text-[13px] font-medium text-anthracite transition hover:bg-ruby/5"
           >
             Zur Startseite
           </Link>
-
-          {/* Subtle logout as second action */}
-          <button
-            onClick={handleLogout}
-            className="mt-2 w-full text-left text-[11px] text-anthracite/50 transition hover:text-anthracite"
-          >
-            Abmelden
-          </button>
         </div>
       </aside>
 

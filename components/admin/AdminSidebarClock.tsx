@@ -25,10 +25,9 @@ export default function AdminSidebarClock() {
   })
 
   return (
-    <div className="text-xs text-anthracite/60">
-      <div>{date}</div>
-      <div className="tabular-nums">{time}</div>
-      <div className="mt-0.5">44577 Castrop-Rauxel</div>
+    <div className="text-center text-xs leading-tight text-anthracite/60">
+      <div>{date} • {time}</div>
+      <div className="mt-1">44577 Castrop-Rauxel</div>
     </div>
   )
 }
