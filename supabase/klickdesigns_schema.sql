@@ -262,20 +262,53 @@ create table if not exists public.offer_items (
 
 create table if not exists public.invoices (
   id uuid primary key default gen_random_uuid(),
-  customer_id uuid references public.customers(id) on delete set null,
+  invoice_number text unique not null,
   offer_id uuid references public.offers(id) on delete set null,
+  customer_id uuid references public.customers(id) on delete set null,
+  project_id uuid references public.projects(id) on delete set null,
   title text not null,
-  amount_cents integer not null,
-  status text not null default 'draft',
+  notes text,
+  subtotal_cents integer not null default 0,
+  discount_cents integer not null default 0,
+  total_cents integer not null default 0,
+  currency text default 'EUR',
+  status text not null default 'open',
+  invoice_date date default current_date,
   due_date date,
+  payment_terms text,
   paid_at timestamptz,
-  description text,
+  sent_at timestamptz,
+  cancelled_at timestamptz,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  constraint invoices_status_check check (
-    status in ('draft', 'sent', 'paid', 'overdue', 'cancelled')
-  ),
-  constraint invoices_amount_cents_check check (amount_cents >= 0)
+  updated_at timestamptz not null default now()
+);
+
+-- Upgrade for existing installations
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS invoice_number text;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS project_id uuid;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS notes text;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS subtotal_cents integer DEFAULT 0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS discount_cents integer DEFAULT 0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS invoice_date date DEFAULT current_date;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS payment_terms text;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS sent_at timestamptz;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS cancelled_at timestamptz;
+
+ALTER TABLE public.invoices DROP CONSTRAINT IF EXISTS invoices_status_check;
+ALTER TABLE public.invoices ADD CONSTRAINT invoices_status_check CHECK (status IN ('open', 'paid', 'cancelled'));
+
+create table if not exists public.invoice_items (
+  id uuid primary key default gen_random_uuid(),
+  invoice_id uuid references public.invoices(id) on delete cascade not null,
+  offer_item_id uuid references public.offer_items(id) on delete set null,
+  title text not null,
+  description text,
+  quantity numeric default 1,
+  unit_price_cents integer not null default 0,
+  total_cents integer not null default 0,
+  sort_order integer default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 -- =============================================================================
@@ -348,6 +381,20 @@ create index if not exists invoices_status_idx
 create index if not exists invoices_created_at_idx
   on public.invoices (created_at desc);
 
+create index if not exists invoices_invoice_number_idx
+  on public.invoices (invoice_number);
+create index if not exists invoices_offer_id_idx
+  on public.invoices (offer_id);
+create index if not exists invoices_customer_id_idx
+  on public.invoices (customer_id);
+create index if not exists invoices_project_id_idx
+  on public.invoices (project_id);
+create index if not exists invoices_status_idx
+  on public.invoices (status);
+
+create index if not exists invoice_items_invoice_id_idx
+  on public.invoice_items (invoice_id);
+
 -- =============================================================================
 -- Triggers
 -- =============================================================================
@@ -403,6 +450,11 @@ create trigger invoices_set_updated_at
 before update on public.invoices
 for each row execute function public.set_updated_at();
 
+drop trigger if exists invoice_items_set_updated_at on public.invoice_items;
+create trigger invoice_items_set_updated_at
+before update on public.invoice_items
+for each row execute function public.set_updated_at();
+
 -- =============================================================================
 -- RLS
 -- =============================================================================
@@ -417,6 +469,7 @@ alter table public.service_packages enable row level security;
 alter table public.offers enable row level security;
 alter table public.offer_items enable row level security;
 alter table public.invoices enable row level security;
+alter table public.invoice_items enable row level security;
 
 create or replace function public.is_admin()
 returns boolean
@@ -446,6 +499,7 @@ revoke all on table public.service_packages from anon;
 revoke all on table public.offers from anon;
 revoke all on table public.offer_items from anon;
 revoke all on table public.invoices from anon;
+revoke all on table public.invoice_items from anon;
 
 -- Allow public read for offers by token (for customer acceptance)
 grant select on table public.offers to anon;
@@ -461,6 +515,7 @@ grant select, insert, update, delete on table public.service_packages to authent
 grant select, insert, update, delete on table public.offers to authenticated;
 grant select, insert, update, delete on table public.offer_items to authenticated;
 grant select, insert, update, delete on table public.invoices to authenticated;
+grant select, insert, update, delete on table public.invoice_items to authenticated;
 
 drop policy if exists "Admins manage profiles" on public.profiles;
 create policy "Admins manage profiles"
@@ -558,6 +613,14 @@ using (offer_id in (select id from public.offers where public_token is not null)
 drop policy if exists "Admins manage invoices" on public.invoices;
 create policy "Admins manage invoices"
 on public.invoices
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins manage invoice_items" on public.invoice_items;
+create policy "Admins manage invoice_items"
+on public.invoice_items
 for all
 to authenticated
 using (public.is_admin())
