@@ -98,10 +98,13 @@ export default function AdminLogoVorlagen() {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'bin'
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '').slice(0, 40) || 'file'
     const fileName = `logo-${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`
-    const path = `logo-vorlagen/${fileName}`
+    const path = fileName
     const { error } = await supabase.storage.from('logo-vorlagen').upload(path, file, { upsert: false })
     if (error) {
       console.error('Storage upload error', error)
+      if (error.message?.toLowerCase().includes('bucket not found')) {
+        console.error('Hinweis: Der Bucket "logo-vorlagen" existiert nicht. Bitte in Supabase Dashboard > Storage anlegen (Public). Siehe Kommentare in supabase/logo_vorlagen_schema.sql')
+      }
       return null
     }
     return path
@@ -129,7 +132,7 @@ export default function AdminLogoVorlagen() {
       if (pendingPng) {
         const uploaded = await uploadFile(pendingPng, 'logo-vorlagen')
         if (!uploaded) {
-          setError('PNG Upload fehlgeschlagen.')
+          setError('PNG Upload fehlgeschlagen. Bucket "logo-vorlagen" fehlt? Bitte anlegen (siehe supabase/logo_vorlagen_schema.sql).')
           return
         }
         pngPath = uploaded
@@ -138,7 +141,7 @@ export default function AdminLogoVorlagen() {
       if (pendingSvg) {
         const uploaded = await uploadFile(pendingSvg, 'logo-vorlagen')
         if (!uploaded) {
-          setError('SVG Upload fehlgeschlagen.')
+          setError('SVG Upload fehlgeschlagen. Bucket "logo-vorlagen" fehlt? Bitte anlegen (siehe supabase/logo_vorlagen_schema.sql).')
           return
         }
         svgPath = uploaded

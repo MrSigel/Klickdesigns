@@ -51,14 +51,37 @@ to anon, authenticated
 using (is_active = true);
 
 -- =============================================================================
--- Storage: logo-vorlagen bucket (manuell erstellen!)
+-- WICHTIG: Storage Bucket "logo-vorlagen" muss manuell erstellt werden!
 -- =============================================================================
--- 1. Supabase Dashboard > Storage > New bucket "logo-vorlagen" (Public empfohlen)
--- 2. Policies (ähnlich wie portfolio-media):
---    - Public SELECT für bucket_id = 'logo-vorlagen'
---    - Admin INSERT/UPDATE/DELETE mit public.is_admin()
+-- Ohne diesen Bucket schlägt der Upload fehl mit "png upload fehlgeschlagen" / "Bucket not found".
+--
+-- Schritte:
+-- 1. Supabase Dashboard → Storage → "New bucket"
+-- 2. Name: logo-vorlagen
+-- 3. Public Bucket aktivieren (für direkte Downloads auf /logo-vorlagen)
+-- 4. Create
+--
+-- 5. Policies anlegen (Bucket → Policies oder SQL Editor):
+--
+-- -- Öffentliches Lesen (für öffentliche Downloads)
+-- CREATE POLICY "Public can read logo-vorlagen"
+-- ON storage.objects FOR SELECT
+-- TO anon, authenticated
+-- USING (bucket_id = 'logo-vorlagen');
+--
+-- -- Nur Admins dürfen hochladen/ändern/löschen
+-- CREATE POLICY "Admins upload to logo-vorlagen"
+-- ON storage.objects FOR INSERT
+-- TO authenticated
+-- WITH CHECK (bucket_id = 'logo-vorlagen' AND public.is_admin());
+--
+-- CREATE POLICY "Admins manage logo-vorlagen"
+-- ON storage.objects FOR UPDATE, DELETE
+-- TO authenticated
+-- USING (bucket_id = 'logo-vorlagen' AND public.is_admin());
 --
 -- Nur für kostenlose Logo-Vorlagen.
+-- Service Role Key wird NIE im Client verwendet.
 -- =============================================================================
 
 commit;
