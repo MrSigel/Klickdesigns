@@ -527,13 +527,6 @@ create table if not exists public.invoice_items (
   updated_at timestamptz not null default now()
 );
 
--- =============================================================================
--- Upgrades for existing installations (safe to run after all CREATE TABLEs)
--- =============================================================================
--- Moved here so the full klickdesigns_schema.sql runs cleanly on a new Supabase
--- project without "relation does not exist" errors.
-
--- Logo templates for Kostenlose Logo-Vorlagen (idempotent)
 create table if not exists public.logo_templates (
   id uuid primary key default gen_random_uuid(),
   title text not null,
@@ -543,10 +536,17 @@ create table if not exists public.logo_templates (
   is_active boolean default true,
   category text default 'other',
   sort_order integer default 0,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
+-- =============================================================================
+-- Upgrades for existing installations (safe to run after all CREATE TABLEs)
+-- =============================================================================
+-- Moved here so the full klickdesigns_schema.sql runs cleanly on a new Supabase
+-- project without "relation does not exist" errors.
+
+-- Logo templates upgrades (for existing DBs where table was created before category/sort_order)
 ALTER TABLE public.logo_templates ADD COLUMN IF NOT EXISTS category text;
 ALTER TABLE public.logo_templates ADD COLUMN IF NOT EXISTS sort_order integer DEFAULT 0;
 
@@ -1303,5 +1303,10 @@ using (
 -- kann später ergänzt werden.
 -- Jetzt noch keine automatische Löschung implementieren, falls kein Cron-System aktiv ist.
 -- =============================================================================
+
+-- Force PostgREST schema cache reload.
+-- Execute this (or the whole schema file) if you get:
+-- "Could not find the 'category' column of 'logo_templates' in the schema cache"
+SELECT pg_notify('pgrst', 'reload schema');
 
 commit;
