@@ -37,6 +37,13 @@ create table if not exists public.customers (
 -- Note: Upgrades for existing installations are moved after all CREATE TABLE statements
 -- to allow clean one-shot execution on new databases.
 
+-- Compatibility: ensure customers columns exist before constraints/indexes
+alter table public.customers add column if not exists customer_type text;
+alter table public.customers add column if not exists company text;
+alter table public.customers add column if not exists project_name text;
+alter table public.customers add column if not exists source text;
+alter table public.customers add column if not exists status text not null default 'interessent';
+alter table public.customers add column if not exists notes text;
 -- Constraints for customers (customers table already created above)
 ALTER TABLE public.customers
   DROP CONSTRAINT IF EXISTS customers_status_check;
@@ -237,6 +244,12 @@ create table if not exists public.acquisition_leads (
   updated_at timestamptz not null default now()
 );
 
+-- Compatibility: ensure acquisition_leads columns exist before constraints/indexes
+alter table public.acquisition_leads add column if not exists source text;
+alter table public.acquisition_leads add column if not exists detected_problem text;
+alter table public.acquisition_leads add column if not exists recommended_service text;
+alter table public.acquisition_leads add column if not exists status text not null default 'open';
+alter table public.acquisition_leads add column if not exists do_not_contact boolean not null default false;
 -- Constraints for acquisition_leads
 ALTER TABLE public.acquisition_leads
   DROP CONSTRAINT IF EXISTS acquisition_leads_status_check;
@@ -278,6 +291,10 @@ create table if not exists public.search_results (
   updated_at timestamptz not null default now()
 );
 
+-- Compatibility: ensure search_results columns exist before constraints/indexes
+alter table public.search_results add column if not exists recommended_service text;
+alter table public.search_results add column if not exists scan_status text not null default 'pending';
+alter table public.search_results add column if not exists saved_as_lead boolean not null default false;
 -- Constraints for search_results
 ALTER TABLE public.search_results
   DROP CONSTRAINT IF EXISTS search_results_scan_status_check;
@@ -332,6 +349,9 @@ create table if not exists public.social_templates (
   updated_at timestamptz default now()
 );
 
+-- Compatibility: ensure social_posts columns exist before constraints/indexes
+alter table public.social_posts add column if not exists platform text not null default 'facebook';
+alter table public.social_posts add column if not exists media_type text;
 -- Constraints for social_posts
 ALTER TABLE public.social_posts
   DROP CONSTRAINT IF EXISTS social_posts_platform_check;
@@ -345,6 +365,8 @@ ALTER TABLE public.social_posts
   ADD CONSTRAINT social_posts_media_type_check
   CHECK (media_type IS NULL OR media_type IN ('image', 'video', 'other'));
 
+-- Compatibility: ensure social_templates columns exist before constraints/indexes
+alter table public.social_templates add column if not exists platform text;
 -- Constraints for social_templates
 ALTER TABLE public.social_templates
   DROP CONSTRAINT IF EXISTS social_templates_platform_check;
@@ -373,6 +395,8 @@ create table if not exists public.portfolio_references (
   updated_at timestamptz default now()
 );
 
+-- Compatibility: ensure portfolio_references columns exist before constraints/indexes
+alter table public.portfolio_references add column if not exists media_type text not null default 'image';
 -- Constraints for portfolio_references
 ALTER TABLE public.portfolio_references
   DROP CONSTRAINT IF EXISTS portfolio_references_media_type_check;
@@ -870,6 +894,7 @@ with check (public.is_admin());
 -- Public insert for website form (validated server-side)
 grant insert on table public.inquiries to anon;
 
+drop policy if exists "Public can insert inquiries from website" on public.inquiries;
 create policy "Public can insert inquiries from website"
 on public.inquiries
 for insert
@@ -916,6 +941,7 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
+drop policy if exists "Public can view offer by token" on public.offers;
 create policy "Public can view offer by token"
 on public.offers
 for select
@@ -930,6 +956,7 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
+drop policy if exists "Public can view offer items by token" on public.offer_items;
 create policy "Public can view offer items by token"
 on public.offer_items
 for select
@@ -1000,6 +1027,7 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
+drop policy if exists "Public can view visible portfolio references" on public.portfolio_references;
 create policy "Public can view visible portfolio references"
 on public.portfolio_references
 for select
@@ -1014,6 +1042,7 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
+drop policy if exists "Public can view public settings" on public.settings;
 create policy "Public can view public settings"
 on public.settings
 for select
@@ -1081,38 +1110,85 @@ values
 on conflict (slug) do nothing;
 
 -- =============================================================================
--- Storage preparation: portfolio-media  (WICHTIG: MANUELL AUSFÜHREN!)
+-- Storage: portfolio-media
 -- =============================================================================
--- 1. Gehe in Supabase Dashboard → Storage → "New bucket"
--- 2. Bucket-Name exakt: portfolio-media
--- 3. Public Bucket aktivieren (wichtig für öffentliche Anzeige auf der Landingpage)
--- 4. Bucket erstellen
---
--- 5. Policies setzen (Bucket → Policies Tab oder SQL Editor):
---
---   -- Öffentliches Lesen (für Landingpage)
---   CREATE POLICY "Public can read portfolio-media"
---   ON storage.objects FOR SELECT
---   TO anon, authenticated
---   USING (bucket_id = 'portfolio-media');
---
---   -- Nur Admins dürfen hochladen/ändern/löschen
---   CREATE POLICY "Admins upload to portfolio-media"
---   ON storage.objects FOR INSERT
---   TO authenticated
---   WITH CHECK (bucket_id = 'portfolio-media' AND public.is_admin());
---
---   CREATE POLICY "Admins manage portfolio-media"
---   ON storage.objects FOR UPDATE, DELETE
---   TO authenticated
---   USING (bucket_id = 'portfolio-media' AND public.is_admin());
---
--- Hinweis: Diese Policies + Bucket MÜSSEN manuell angelegt werden,
--- bevor Referenzen mit Bildern/Videos/PDFs hochgeladen werden können.
--- Ohne Bucket → "Bucket not found" Fehler (wie im Admin gesehen).
---
--- Nur Portfolio-Dateien hier ablegen (keine privaten Kundendateien).
--- Service Role Key wird NIE im Client verwendet.
+-- Public bucket for intentionally published portfolio/reference files only.
+-- Do NOT store private customer files in this bucket.
+
+insert into storage.buckets (
+  id,
+  name,
+  public,
+  file_size_limit,
+  allowed_mime_types
+)
+values (
+  'portfolio-media',
+  'portfolio-media',
+  true,
+  52428800,
+  array[
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'video/mp4',
+    'video/webm',
+    'application/pdf'
+  ]
+)
+on conflict (id) do update
+set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+-- Public read access so visible portfolio media can render on the landing page.
+drop policy if exists "Public read portfolio-media" on storage.objects;
+create policy "Public read portfolio-media"
+on storage.objects
+for select
+to anon, authenticated
+using (bucket_id = 'portfolio-media');
+
+-- Only authenticated admins may upload portfolio media.
+drop policy if exists "Admins insert portfolio-media" on storage.objects;
+create policy "Admins insert portfolio-media"
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'portfolio-media'
+  and public.is_admin()
+);
+
+-- Only authenticated admins may update portfolio media.
+drop policy if exists "Admins update portfolio-media" on storage.objects;
+create policy "Admins update portfolio-media"
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'portfolio-media'
+  and public.is_admin()
+)
+with check (
+  bucket_id = 'portfolio-media'
+  and public.is_admin()
+);
+
+-- Only authenticated admins may delete portfolio media.
+drop policy if exists "Admins delete portfolio-media" on storage.objects;
+create policy "Admins delete portfolio-media"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'portfolio-media'
+  and public.is_admin()
+);
+
+-- =============================================================================
 -- =============================================================================
 
 -- =============================================================================

@@ -16,6 +16,7 @@ const navItems = [
   { href: '/admin/suchen', label: 'Suchen' },
   { href: '/admin/social-media', label: 'Social Media' },
   { href: '/admin/referenzen', label: 'Referenzen' },
+  { href: '/admin/logo-vorlagen', label: 'Logo Vorlagen' },
   { href: '/admin/archiv', label: 'Archiv' },
   { href: '/admin/einstellungen', label: 'Einstellungen' },
   { href: '/admin/profil', label: 'Profil' },

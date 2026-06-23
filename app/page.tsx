@@ -1320,7 +1320,7 @@ function FreeTemplates() {
 
         <Reveal className="mt-12 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
           <a
-            href="#kontakt"
+            href="/logo-vorlagen"
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-anthracite/20 bg-white px-6 py-3 text-[14px] font-semibold text-anthracite transition-all hover:-translate-y-0.5 hover:border-ruby/30 hover:shadow-md"
           >
             Kostenlose Logos ansehen
