@@ -19,6 +19,7 @@ type Inquiry = {
   internal_notes: string | null
   customer_id: string | null
   created_at: string
+  uploaded_files?: Array<{ name: string; path: string; size?: number; type?: string }> | null
 }
 
 type Customer = {
@@ -191,6 +192,24 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
             <h2 className="font-semibold mb-2">Nachricht</h2>
             <p className="text-sm whitespace-pre-wrap text-anthracite/80">{inquiry.message}</p>
           </div>
+
+          {inquiry.uploaded_files && inquiry.uploaded_files.length > 0 && (
+            <div>
+              <label className="block text-xs text-anthracite/70 mb-1">Hochgeladene Dateien</label>
+              <ul className="text-sm space-y-1">
+                {inquiry.uploaded_files.map((f, i) => {
+                  const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/inquiry-uploads/${f.path}`
+                  return (
+                    <li key={i}>
+                      <a href={url} target="_blank" rel="noopener" className="text-ruby hover:underline">
+                        {f.name} {f.size ? `(${(f.size/1024/1024).toFixed(1)} MB)` : ''}
+                      </a>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
         </div>
 
         <div className="space-y-6">

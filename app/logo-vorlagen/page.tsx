@@ -1,9 +1,7 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import { createClient as createServerClient } from '@/lib/supabase/server'
+import dynamic from 'next/dynamic'
 
 type LogoTemplate = {
   id: string
@@ -29,124 +27,27 @@ const categoryOptions = [
   { value: 'other', label: 'Sonstiges' },
 ]
 
-export default function LogoVorlagenPage() {
-  const [templates, setTemplates] = useState<LogoTemplate[]>([])
-  const [loading, setLoading] = useState(true)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<LogoTemplate | null>(null)
-  const [selectedType, setSelectedType] = useState<'png' | 'svg' | null>(null)
-  const [form, setForm] = useState({ email: '', website: '', first_name: '', last_name: '' })
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
-  const [activeFilter, setActiveFilter] = useState<'all' | string>('all')
-
-  const supabase = createClient()
-
-  useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from('logo_templates')
-        .select('id, title, description, png_path, svg_path, category')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true })
-        .order('created_at', { ascending: false })
-      setTemplates((data || []) as LogoTemplate[])
-      setLoading(false)
-    }
-    load()
-  }, [supabase])
-
-  // Support initial filter from ?kategorie= param (shareable links)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const k = params.get('kategorie')
-      if (k) {
-        const match = categoryOptions.find((c) => c.value === k)
-        if (match) {
-          setActiveFilter(match.value)
-        } else if (k === 'all') {
-          setActiveFilter('all')
-        }
-      }
-    }
-  }, [])
-
-  const openDownload = (tpl: LogoTemplate, type: 'png' | 'svg') => {
-    setSelectedTemplate(tpl)
-    setSelectedType(type)
-    setForm({ email: '', website: '', first_name: '', last_name: '' })
-    setError('')
-    setModalOpen(true)
+async function getTemplates(kategorie: string) {
+  const supabase = await createServerClient()
+  let q = supabase
+    .from('logo_templates')
+    .select('id, title, description, png_path, svg_path, category')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: false })
+  if (kategorie && kategorie !== 'all') {
+    q = q.eq('category', kategorie)
   }
+  const { data } = await q
+  return (data || []) as LogoTemplate[]
+}
 
-  const closeModal = () => {
-    setModalOpen(false)
-    setSelectedTemplate(null)
-    setSelectedType(null)
-  }
+export default async function LogoVorlagenPage({ searchParams }: { searchParams: Promise<{ kategorie?: string }> }) {
+  const params = await searchParams
+  const kategorie = params.kategorie || 'all'
+  const templates = await getTemplates(kategorie)
 
-  const getPublicUrl = (path: string) => {
-    const base = process.env.NEXT_PUBLIC_SUPABASE_URL
-    return `${base}/storage/v1/object/public/logo-vorlagen/${path}`
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedTemplate || !selectedType) return
-
-    if (!form.email.trim()) {
-      setError('E-Mail ist erforderlich.')
-      return
-    }
-
-    setSubmitting(true)
-    setError('')
-
-    try {
-      // Create inquiry / Anfrage
-      const { error: insertErr } = await supabase.from('inquiries').insert({
-        name: [form.first_name, form.last_name].filter(Boolean).join(' ') || null,
-        email: form.email.trim(),
-        company: null,
-        project_name: selectedTemplate.title,
-        service_type: 'other',
-        existing_material: null,
-        message: `Download Logo-Vorlage: ${selectedTemplate.title} (${selectedType.toUpperCase()})` + (form.website ? ` | Website: ${form.website}` : '') + ` | Kategorie: ${selectedTemplate.category || 'other'}`,
-        status: 'new',
-        priority: 'normal',
-        source: 'logo_vorlagen',
-        consent_privacy: true,
-      })
-
-      if (insertErr) {
-        console.error('Inquiry error', insertErr)
-        // Continue with download even if inquiry fails (but try)
-      }
-
-      // Start download directly
-      const path = selectedType === 'png' ? selectedTemplate.png_path : selectedTemplate.svg_path
-      const url = getPublicUrl(path)
-      const filename = `${selectedTemplate.title}.${selectedType}`
-
-      // Trigger download
-      const link = document.createElement('a')
-      link.href = url
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-
-      // Close and reset
-      setTimeout(() => {
-        closeModal()
-      }, 800)
-    } catch (err: any) {
-      setError('Fehler beim Verarbeiten. Bitte erneut versuchen.')
-    }
-
-    setSubmitting(false)
-  }
+  const LogoVorlagenInteractive = dynamic(() => import('./LogoVorlagenInteractive'), { ssr: false })
 
   return (
     <div className="min-h-screen bg-offwhite">
@@ -165,14 +66,15 @@ export default function LogoVorlagenPage() {
           </p>
         </div>
 
-        {/* Category Filter - modern pills, no page reload, supports ?kategorie= */}
+        {/* Server rendered filter as links for SEO and crawler */}
         <div className="mb-8 flex flex-wrap justify-center gap-2">
           {categoryOptions.map((cat) => {
-            const isActive = activeFilter === cat.value
+            const isActive = kategorie === cat.value
+            const href = cat.value === 'all' ? '/logo-vorlagen' : `/logo-vorlagen?kategorie=${cat.value}`
             return (
-              <button
+              <a
                 key={cat.value}
-                onClick={() => setActiveFilter(cat.value)}
+                href={href}
                 className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all border ${
                   isActive
                     ? 'bg-ruby text-offwhite border-ruby shadow-sm'
@@ -180,150 +82,45 @@ export default function LogoVorlagenPage() {
                 }`}
               >
                 {cat.label}
-              </button>
+              </a>
             )
           })}
         </div>
 
-        {loading ? (
-          <div className="py-20 text-center text-anthracite/50">Lade Vorlagen…</div>
-        ) : templates.length === 0 ? (
+        {templates.length === 0 ? (
           <div className="rounded-xl border border-anthracite/10 bg-white p-12 text-center">
-            <p className="text-anthracite/70">Aktuell sind noch keine Vorlagen verfügbar.</p>
+            <p className="text-anthracite/70">Aktuell werden neue kostenlose Logo-Vorlagen vorbereitet.</p>
           </div>
         ) : (
-          (() => {
-            const filtered = activeFilter === 'all'
-              ? templates
-              : templates.filter((t) => (t.category || 'other') === activeFilter)
-            if (filtered.length === 0) {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {templates.map((tpl) => {
+              const pngUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logo-vorlagen/${tpl.png_path}`
               return (
-                <div className="rounded-xl border border-anthracite/10 bg-white p-12 text-center">
-                  <p className="text-anthracite/70">Für diese Kategorie werden gerade neue Logo-Vorlagen vorbereitet.</p>
+                <div key={tpl.id} className="rounded-xl border border-anthracite/10 bg-white overflow-hidden flex flex-col">
+                  <div className="bg-offwhite p-6 flex items-center justify-center h-56">
+                    <img 
+                      src={pngUrl} 
+                      alt="Kostenlose Logo-Vorlage von Klickdesigns" 
+                      className="max-h-44 object-contain" 
+                      width={300}
+                      height={200}
+                    />
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="mt-auto grid grid-cols-2 gap-2">
+                      {/* Client interactive for modal/download */}
+                      <LogoVorlagenInteractive tpl={tpl} type="png" />
+                      <LogoVorlagenInteractive tpl={tpl} type="svg" />
+                    </div>
+                  </div>
                 </div>
               )
-            }
-            return (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.map((tpl) => {
-                  const pngUrl = getPublicUrl(tpl.png_path)
-                  return (
-                    <div key={tpl.id} className="rounded-xl border border-anthracite/10 bg-white overflow-hidden flex flex-col">
-                      <div className="bg-offwhite p-6 flex items-center justify-center h-56">
-                        <img 
-                          src={pngUrl} 
-                          alt="Logo-Vorlage" 
-                          className="max-h-44 object-contain" 
-                        />
-                      </div>
-                      <div className="p-5 flex-1 flex flex-col">
-                        <div className="mt-auto grid grid-cols-2 gap-2">
-                          <button
-                            onClick={() => openDownload(tpl, 'png')}
-                            className="rounded-md border border-anthracite/15 py-2 text-sm font-medium hover:bg-anthracite/5 transition"
-                          >
-                            PNG herunterladen
-                          </button>
-                          <button
-                            onClick={() => openDownload(tpl, 'svg')}
-                            className="rounded-md bg-ruby text-offwhite py-2 text-sm font-semibold hover:bg-ruby/90 transition"
-                          >
-                            SVG herunterladen
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )
-          })()
+            })}
+          </div>
         )}
       </main>
 
       <Footer />
-
-      {/* Download Modal */}
-      {modalOpen && selectedTemplate && selectedType && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-anthracite/50 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-anthracite/10 bg-white p-6 shadow-xl">
-            <h3 className="font-display text-xl font-semibold mb-1">Download starten</h3>
-            <p className="text-sm text-anthracite/70 mb-4">
-              Logo-Vorlage – {selectedType.toUpperCase()}
-            </p>
-
-            {error && <div className="mb-4 rounded bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">{error}</div>}
-
-            <form onSubmit={handleSubmit} className="space-y-4 text-sm">
-              <div>
-                <label className="block text-anthracite/70 text-xs mb-1">E-Mail *</label>
-                <input
-                  type="email"
-                  required
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full rounded-md border border-anthracite/15 px-3 py-2 focus:border-ruby/40 outline-none"
-                  placeholder="deine@email.de"
-                />
-              </div>
-
-              <div>
-                <label className="block text-anthracite/70 text-xs mb-1">Website (optional)</label>
-                <input
-                  type="text"
-                  value={form.website}
-                  onChange={(e) => setForm({ ...form, website: e.target.value })}
-                  className="w-full rounded-md border border-anthracite/15 px-3 py-2 focus:border-ruby/40 outline-none"
-                  placeholder="deine-website.de"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-anthracite/70 text-xs mb-1">Vorname (optional)</label>
-                  <input
-                    type="text"
-                    value={form.first_name}
-                    onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                    className="w-full rounded-md border border-anthracite/15 px-3 py-2 focus:border-ruby/40 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-anthracite/70 text-xs mb-1">Nachname (optional)</label>
-                  <input
-                    type="text"
-                    value={form.last_name}
-                    onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                    className="w-full rounded-md border border-anthracite/15 px-3 py-2 focus:border-ruby/40 outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-2 flex gap-3">
-                <button 
-                  type="button" 
-                  onClick={closeModal} 
-                  disabled={submitting}
-                  className="flex-1 rounded-md border border-anthracite/20 py-2 hover:bg-anthracite/5 disabled:opacity-50"
-                >
-                  Abbrechen
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={submitting}
-                  className="flex-1 rounded-md bg-ruby py-2 font-semibold text-offwhite hover:bg-ruby/90 disabled:opacity-50"
-                >
-                  {submitting ? 'Wird heruntergeladen...' : 'Download starten'}
-                </button>
-              </div>
-            </form>
-
-            <p className="mt-4 text-[11px] text-anthracite/50 text-center">
-              Mit der Eingabe deiner E-Mail stimmst du zu, dass wir deine Daten zur Kontaktaufnahme speichern dürfen.
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

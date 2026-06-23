@@ -17,6 +17,36 @@ export async function submitInquiry(formData: FormData) {
     return { error: 'Bitte Name, E-Mail und Beschreibung angeben.' }
   }
 
+  // Handle optional file uploads
+  const uploadedFiles: Array<{ name: string; path: string; size: number; type: string }> = []
+  const files = formData.getAll('files') as File[]
+  const maxSize = 10 * 1024 * 1024 // 10 MB
+  const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf', 'image/svg+xml']
+
+  for (const file of files) {
+    if (!file || file.size === 0) continue
+    if (file.size > maxSize) {
+      return { error: 'Eine Datei überschreitet die maximale Größe von 10 MB.' }
+    }
+    const isSvg = file.name.toLowerCase().endsWith('.svg')
+    if (!allowed.includes(file.type) && !isSvg) {
+      return { error: 'Ungültiges Dateiformat. Erlaubt: PNG, JPG, SVG, PDF, WEBP.' }
+    }
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '').slice(0, 60) || 'file'
+    const path = `uploads/${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`
+    const { error: upErr } = await supabase.storage.from('inquiry-uploads').upload(path, file, { upsert: false })
+    if (upErr) {
+      console.error('File upload error:', upErr)
+      return { error: 'Datei-Upload fehlgeschlagen. Bitte später erneut versuchen.' }
+    }
+    uploadedFiles.push({
+      name: file.name,
+      path,
+      size: file.size,
+      type: file.type || (isSvg ? 'image/svg+xml' : 'application/octet-stream')
+    })
+  }
+
   const { error } = await supabase.from('inquiries').insert({
     name,
     email,
@@ -28,6 +58,7 @@ export async function submitInquiry(formData: FormData) {
     priority: 'normal',
     source: 'website',
     consent_privacy: true,
+    uploaded_files: uploadedFiles.length > 0 ? uploadedFiles : null,
   })
 
   if (error) {

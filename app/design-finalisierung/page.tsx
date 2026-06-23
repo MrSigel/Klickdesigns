@@ -32,6 +32,7 @@ export default function DesignFinalisierungPage() {
         <div className="mt-10 rounded-xl border p-6">
           <p className="font-semibold">Preis: Design-Finalisierung ab 149 €</p>
           <p className="text-sm mt-1">Inklusive 1 Korrekturrunde. Export als PNG, JPG oder PDF nach Vereinbarung.</p>
+          <p className="mt-1 text-xs text-anthracite/60">In der Regel innerhalb weniger Werktage je nach Umfang.</p>
         </div>
 
         <div className="mt-12">
@@ -44,6 +45,21 @@ export default function DesignFinalisierungPage() {
         <div className="mt-10 text-center"><a href="/kontakt" className="rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Design finalisieren lassen</a></div>
       </main>
       <Footer />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              { "@type": "Question", name: "Kann ich ein Canva-Design einsenden?", acceptedAnswer: { "@type": "Answer", text: "Ja, wir arbeiten mit Canva-Designs und anderen Entwürfen." } },
+              { "@type": "Question", name: "Bekomme ich druckfertige PDF?", acceptedAnswer: { "@type": "Answer", text: "Ja, je nach Projekt als PDF für Druck oder für Social Media." } },
+              { "@type": "Question", name: "Wie viele Korrekturen gibt es?", acceptedAnswer: { "@type": "Answer", text: "Eine Korrekturrunde ist im Preis enthalten." } }
+            ]
+          }).replace(/</g, "\\u003c")
+        }}
+      />
     </>
   );
 }

@@ -1037,7 +1037,7 @@ function ReferencesSection() {
                       {ref.media_type === 'image' && (
                         <img
                           src={url}
-                          alt={ref.alt_text || ref.title}
+                          alt={ref.alt_text || ref.title || 'Referenz von Klickdesigns'}
                           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 hover:scale-[1.025]"
                           loading="lazy"
                         />
@@ -1218,6 +1218,10 @@ function FreeTemplates() {
             <IconArrow className="h-3.5 w-3.5" />
           </a>
         </Reveal>
+
+        <div className="mt-10 text-center text-sm text-anthracite/70 max-w-2xl mx-auto">
+          Klickdesigns sitzt in Castrop-Rauxel und unterstützt Unternehmen, Vereine, Selbstständige und Creator im Ruhrgebiet, in NRW und deutschlandweit bei professionellen Logos, Flyern, Social-Media-Grafiken und der Aufbereitung bestehender Designs.
+        </div>
       </div>
     </section>
   );
@@ -1253,6 +1257,10 @@ function Process() {
               </div>
             </Reveal>
           ))}
+        </div>
+
+        <div className="mt-8 text-center text-sm text-offwhite/70">
+          Je nach Umfang erhältst du in der Regel innerhalb weniger Werktage eine Rückmeldung oder erste Vorschau. Kleinere Aufbereitungen wie Logo-Vektorisierungen können meist schneller umgesetzt werden als umfangreiche Design-Finalisierungen. Die genaue Dauer hängt vom Material und Umfang ab und wird vorab transparent abgestimmt.
         </div>
 
         <Reveal delay={0.2} className="mx-auto mt-14 max-w-xl rounded-lg border border-offwhite/15 bg-offwhite/[0.03] px-6 py-5 text-center">
@@ -1558,6 +1566,20 @@ function Contact() {
                   name="message"
                   className="briefing-input mt-3 min-h-[150px] w-full resize-none"
                 />
+              </label>
+
+              <label className="mt-7 block">
+                <span className="text-[14px] font-semibold text-anthracite/75">
+                  Logo / Entwurf / Dateien (optional)
+                </span>
+                <input
+                  type="file"
+                  name="files"
+                  multiple
+                  accept=".png,.jpg,.jpeg,.svg,.pdf,.webp"
+                  className="mt-3 block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-anthracite file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-offwhite"
+                />
+                <span className="mt-1 block text-[11px] text-anthracite/50">PNG, JPG, SVG, PDF, WEBP – max. 10 MB pro Datei</span>
               </label>
 
               <button

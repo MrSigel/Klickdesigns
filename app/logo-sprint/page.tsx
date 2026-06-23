@@ -49,6 +49,7 @@ export default function LogoSprintPage() {
 
         <div className="mt-10 rounded-xl border border-ruby/20 bg-ruby/5 p-6">
           <p className="font-semibold">Preis: Logo-Sprint 20 € fix</p>
+          <p className="mt-1 text-xs text-anthracite/60">In der Regel innerhalb weniger Werktage erste Richtungen und Finalisierung.</p>
         </div>
 
         <div className="mt-12">
@@ -64,6 +65,22 @@ export default function LogoSprintPage() {
         </div>
       </main>
       <Footer />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              { "@type": "Question", name: "Wie viele Richtungen erhalte ich?", acceptedAnswer: { "@type": "Answer", text: "4–5 verschiedene Richtungen als Vorschau." } },
+              { "@type": "Question", name: "Bekomme ich SVG und PNG?", acceptedAnswer: { "@type": "Answer", text: "Ja, beide Formate sind inklusive." } },
+              { "@type": "Question", name: "Wie viele Korrekturen sind enthalten?", acceptedAnswer: { "@type": "Answer", text: "Eine kleine Korrektur ist im Preis enthalten." } },
+              { "@type": "Question", name: "Was ist nicht im Sprint enthalten?", acceptedAnswer: { "@type": "Answer", text: "Komplette Markenentwicklung, komplexe Illustrationen oder unbegrenzte Änderungen." } }
+            ]
+          }).replace(/</g, "\\u003c")
+        }}
+      />
     </>
   );
 }

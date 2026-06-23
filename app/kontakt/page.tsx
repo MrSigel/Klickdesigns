@@ -40,6 +40,9 @@ export default function KontaktPage() {
           <p className="mt-4 text-[16px] text-anthracite/65 max-w-xl mx-auto">
             Erzählen Sie uns von Ihrem Projekt. Wir melden uns schnell mit einem passenden Vorschlag.
           </p>
+          <p className="mt-3 text-sm text-anthracite/60">
+            Klickdesigns aus Castrop-Rauxel (Ruhrgebiet, NRW) arbeitet deutschlandweit mit Unternehmen, Vereinen und Creatorn. Je nach Umfang in der Regel innerhalb weniger Werktage erste Rückmeldung.
+          </p>
         </div>
 
         {submitted ? (
@@ -81,6 +84,18 @@ export default function KontaktPage() {
             <div>
               <label className="block text-sm font-medium text-anthracite mb-1">Kurze Beschreibung Ihres Projekts *</label>
               <textarea name="message" required rows={5} className="w-full rounded-md border border-anthracite/15 px-3 py-2 text-sm focus:border-ruby/40" placeholder="Beschreiben Sie kurz, was Sie benötigen..."></textarea>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-anthracite mb-1">Logo / Entwurf / Dateien (optional)</label>
+              <input
+                type="file"
+                name="files"
+                multiple
+                accept=".png,.jpg,.jpeg,.svg,.pdf,.webp"
+                className="w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-anthracite file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-offwhite"
+              />
+              <p className="text-[11px] text-anthracite/50 mt-1">PNG, JPG, SVG, PDF, WEBP erlaubt. Max. 10 MB pro Datei. Du kannst vorhandene Logos oder Entwürfe direkt mitsenden.</p>
             </div>
 
             <div className="flex items-start gap-2 text-sm">

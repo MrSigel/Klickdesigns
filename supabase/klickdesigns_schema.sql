@@ -591,6 +591,7 @@ ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS project_name text;
 ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS source text DEFAULT 'website';
 ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS consent_privacy boolean DEFAULT false;
 ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS confirmation_email_sent_at timestamptz;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS uploaded_files jsonb DEFAULT '[]'::jsonb;
 
 ALTER TABLE public.offers ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'draft';
 
@@ -1308,5 +1309,35 @@ using (
 -- Execute this (or the whole schema file) if you get:
 -- "Could not find the 'category' column of 'logo_templates' in the schema cache"
 SELECT pg_notify('pgrst', 'reload schema');
+
+-- =============================================================================
+-- Storage bucket for inquiry file uploads (from public contact forms)
+-- =============================================================================
+
+insert into storage.buckets (id, name, public)
+values ('inquiry-uploads', 'inquiry-uploads', true)
+on conflict (id) do update set public = excluded.public;
+
+-- Public read for uploaded files (for admin preview/download via public url)
+drop policy if exists "Public can read inquiry-uploads" on storage.objects;
+create policy "Public can read inquiry-uploads"
+on storage.objects for select
+to anon, authenticated
+using (bucket_id = 'inquiry-uploads');
+
+-- Allow anyone (anon) to upload via server-validated contact form
+drop policy if exists "Anon can upload to inquiry-uploads" on storage.objects;
+create policy "Anon can upload to inquiry-uploads"
+on storage.objects for insert
+to anon
+with check (bucket_id = 'inquiry-uploads');
+
+-- Admins can manage (update/delete) inquiry uploads
+drop policy if exists "Admins manage inquiry-uploads" on storage.objects;
+create policy "Admins manage inquiry-uploads"
+on storage.objects for all
+to authenticated
+using (bucket_id = 'inquiry-uploads' and public.is_admin())
+with check (bucket_id = 'inquiry-uploads' and public.is_admin());
 
 commit;

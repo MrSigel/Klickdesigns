@@ -56,6 +56,8 @@ export default function LogoVektorisierenPage() {
         <div className="mt-12 rounded-xl border border-anthracite/10 bg-white p-6">
           <p className="font-semibold">Preis: Logo-Vektorisierung ab 49 €</p>
           <p className="mt-2 text-sm text-anthracite/60">Geeignet für einfache, gut erkennbare Logos. Keine komplette Neugestaltung oder komplexe Illustrationen.</p>
+          <p className="mt-3 text-xs text-anthracite/60">Klickdesigns aus Castrop-Rauxel unterstützt Kunden im Ruhrgebiet, NRW und deutschlandweit.</p>
+          <p className="mt-2 text-xs text-anthracite/60">In der Regel erhältst du innerhalb weniger Werktage erste Ergebnisse oder Rückmeldung.</p>
         </div>
 
         <div className="mt-12">
@@ -71,6 +73,38 @@ export default function LogoVektorisierenPage() {
         </div>
       </main>
       <Footer />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "Bekomme ich eine SVG-Datei?",
+                acceptedAnswer: { "@type": "Answer", text: "Ja, die Vektorisierung liefert ein skalierbares SVG." }
+              },
+              {
+                "@type": "Question",
+                name: "Kann ich ein unscharfes Logo verbessern?",
+                acceptedAnswer: { "@type": "Answer", text: "Ja, wir erstellen eine saubere Version." }
+              },
+              {
+                "@type": "Question",
+                name: "Ist die Datei für Druck geeignet?",
+                acceptedAnswer: { "@type": "Answer", text: "Ja, SVG und PNG sind für die meisten Druckverfahren nutzbar." }
+              },
+              {
+                "@type": "Question",
+                name: "Was ist nicht enthalten?",
+                acceptedAnswer: { "@type": "Answer", text: "Keine Markenrecherche, keine rechtliche Prüfung, keine komplexen Illustrationen." }
+              }
+            ]
+          }).replace(/</g, "\\u003c")
+        }}
+      />
     </>
   );
 }

@@ -15,6 +15,7 @@ type Inquiry = {
   priority: string
   source: string | null
   created_at: string
+  uploaded_files?: Array<{ name: string; path: string; size?: number; type?: string }> | null
 }
 
 async function getInquiries(params: { search?: string; status?: string; service?: string; priority?: string }) {
