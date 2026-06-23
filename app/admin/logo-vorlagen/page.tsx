@@ -206,6 +206,9 @@ export default function AdminLogoVorlagen() {
         <p className="mt-1 text-[15px] text-anthracite/70">
           Kostenlose Logo-Vorlagen verwalten und zum Download anbieten.
         </p>
+        <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+          ⚠️ Wichtig: Der Storage-Bucket „logo-vorlagen“ muss manuell in Supabase angelegt werden (Public). Siehe Anleitung in supabase/logo_vorlagen_schema.sql
+        </div>
       </div>
 
       <div className="mb-6">
