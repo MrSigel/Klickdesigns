@@ -33,6 +33,61 @@ async function getInquiry(id: string) {
   return data as Inquiry | null
 }
 
+async function sendInquiryEmail(formData: FormData) {
+  'use server'
+  const supabase = await createClient()
+  const id = formData.get('id') as string
+
+  const inquiry = await (await supabase.from('inquiries').select('*').eq('id', id).single()).data
+  if (!inquiry || !inquiry.email) return
+
+  if (!process.env.SMTP_HOST) {
+    console.error('SMTP not configured')
+    return
+  }
+
+  const nodemailer = await import('nodemailer')
+
+  const { data: settingsData } = await supabase.from('settings').select('setting_key, setting_value')
+  const map = Object.fromEntries((settingsData || []).map((s: any) => [s.setting_key, s.setting_value || {}]))
+  const emailSet = map.email_settings || {}
+  const company = map.company_profile || {}
+
+  const companyName = company.brand_name || 'Klickdesigns'
+  const senderName = emailSet.sender_name || companyName
+  const signature = emailSet.signature || `Mit freundlichen Grüßen\n${companyName}`
+  const hint = emailSet.inquiry_confirmation_hint || 'Wir melden uns in Kürze bei Ihnen.'
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD,
+    },
+  })
+
+  const subject = `Ihre Anfrage bei ${companyName}`
+  const text = `Hallo ${inquiry.name},\n\nvielen Dank für Ihre Anfrage${inquiry.project_name ? ` zu "${inquiry.project_name}"` : ''}.\n\n${hint}\n\n${signature}`
+  const html = `<p>Hallo ${inquiry.name},</p><p>vielen Dank für Ihre Anfrage${inquiry.project_name ? ` zu "${inquiry.project_name}"` : ''}.</p><p>${hint}</p><p>${signature.replace(/\n/g, '<br>')}</p>`
+
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM || `${senderName} <no-reply@klickdesigns.de>`,
+    to: inquiry.email,
+    subject,
+    text,
+    html,
+  })
+
+  // update status to viewed if still new
+  if (inquiry.status === 'new') {
+    await supabase.from('inquiries').update({ status: 'viewed' }).eq('id', id)
+  }
+
+  revalidatePath(`/admin/anfragen/${id}`)
+}
+
 async function getCustomers() {
   const supabase = await createClient()
   const { data } = await supabase.from('customers').select('id, name, email').order('name').limit(200)
@@ -136,14 +191,26 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
             <div>
               <label className="block text-xs text-anthracite/70 mb-1">Status</label>
               <select name="status" defaultValue={inquiry.status} className="w-full rounded border border-anthracite/15 px-3 py-2 text-sm">
-                {['new','viewed','in_progress','waiting_for_customer','offer_sent','completed','archived'].map(s => <option key={s} value={s}>{s}</option>)}
+                {[
+                  {value: 'new', label: 'Neu'},
+                  {value: 'viewed', label: 'Gesehen'},
+                  {value: 'in_progress', label: 'In Bearbeitung'},
+                  {value: 'waiting_for_customer', label: 'Warte auf Kunden'},
+                  {value: 'offer_sent', label: 'Angebot gesendet'},
+                  {value: 'completed', label: 'Abgeschlossen'},
+                  {value: 'archived', label: 'Archiviert'},
+                ].map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
 
             <div>
               <label className="block text-xs text-anthracite/70 mb-1">Priorität</label>
               <select name="priority" defaultValue={inquiry.priority} className="w-full rounded border border-anthracite/15 px-3 py-2 text-sm">
-                {['low','normal','high'].map(p => <option key={p} value={p}>{p}</option>)}
+                {[
+                  {value: 'low', label: 'Niedrig'},
+                  {value: 'normal', label: 'Normal'},
+                  {value: 'high', label: 'Hoch'},
+                ].map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
               </select>
             </div>
 
@@ -179,17 +246,31 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
                 Angebot erstellen
               </Link>
 
-              <a href={`mailto:${inquiry.email}`} className="block w-full text-left rounded-md border border-anthracite/20 px-4 py-2 text-sm hover:bg-anthracite/5">
-                Antwort senden (E-Mail)
-              </a>
-              <p className="text-[11px] text-anthracite/50 mt-1">E-Mail-Versand wird im nächsten Schritt eingerichtet.</p>
+              <form action={sendInquiryEmail}>
+                <input type="hidden" name="id" value={inquiry.id} />
+                <button type="submit" className="w-full text-left rounded-md border border-anthracite/20 px-4 py-2 text-sm hover:bg-anthracite/5">
+                  Antwort per E-Mail senden
+                </button>
+              </form>
             </div>
           </div>
         </div>
       </div>
 
       <div className="text-xs text-anthracite/50 mt-8">
-        Status: {inquiry.status} · Priorität: {inquiry.priority} · Quelle: {inquiry.source}
+        Status: {[
+          {value: 'new', label: 'Neu'},
+          {value: 'viewed', label: 'Gesehen'},
+          {value: 'in_progress', label: 'In Bearbeitung'},
+          {value: 'waiting_for_customer', label: 'Warte auf Kunden'},
+          {value: 'offer_sent', label: 'Angebot gesendet'},
+          {value: 'completed', label: 'Abgeschlossen'},
+          {value: 'archived', label: 'Archiviert'},
+        ].find(s => s.value === inquiry.status)?.label || inquiry.status} · Priorität: {[
+          {value: 'low', label: 'Niedrig'},
+          {value: 'normal', label: 'Normal'},
+          {value: 'high', label: 'Hoch'},
+        ].find(p => p.value === inquiry.priority)?.label || inquiry.priority} · Quelle: {inquiry.source}
       </div>
     </div>
   )

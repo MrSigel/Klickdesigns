@@ -54,9 +54,30 @@ export default async function AdminAnfragen({ searchParams }: { searchParams: Pr
   const params = await searchParams
   const inquiries = await getInquiries(params)
 
-  const statusOptions = ['new', 'viewed', 'in_progress', 'waiting_for_customer', 'offer_sent', 'completed', 'archived']
-  const serviceOptions = ['logo_sprint', 'logo_vectorization', 'design_finalization', 'business_presence', 'sticker_design', 'social_media_design', 'flyer_design', 'other']
-  const priorityOptions = ['low', 'normal', 'high']
+  const statusOptions = [
+    {value: 'new', label: 'Neu'},
+    {value: 'viewed', label: 'Gesehen'},
+    {value: 'in_progress', label: 'In Bearbeitung'},
+    {value: 'waiting_for_customer', label: 'Warte auf Kunden'},
+    {value: 'offer_sent', label: 'Angebot gesendet'},
+    {value: 'completed', label: 'Abgeschlossen'},
+    {value: 'archived', label: 'Archiviert'},
+  ]
+  const serviceOptions = [
+    {value: 'logo_sprint', label: 'Logo-Sprint'},
+    {value: 'logo_vectorization', label: 'Logo-Vektorisierung'},
+    {value: 'design_finalization', label: 'Design-Finalisierung'},
+    {value: 'business_presence', label: 'Business-Auftritt'},
+    {value: 'sticker_design', label: 'Sticker-Design'},
+    {value: 'social_media_design', label: 'Social-Media-Design'},
+    {value: 'flyer_design', label: 'Flyer-Design'},
+    {value: 'other', label: 'Sonstiges'},
+  ]
+  const priorityOptions = [
+    {value: 'low', label: 'Niedrig'},
+    {value: 'normal', label: 'Normal'},
+    {value: 'high', label: 'Hoch'},
+  ]
 
   return (
     <div>
@@ -80,15 +101,15 @@ export default async function AdminAnfragen({ searchParams }: { searchParams: Pr
         />
         <select name="status" defaultValue={params.status} className="rounded-md border border-anthracite/15 bg-white px-3 py-2 text-sm">
           <option value="">Alle Status</option>
-          {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
+          {statusOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
         <select name="service" defaultValue={params.service} className="rounded-md border border-anthracite/15 bg-white px-3 py-2 text-sm">
           <option value="">Alle Leistungen</option>
-          {serviceOptions.map(s => <option key={s} value={s}>{s}</option>)}
+          {serviceOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
         <select name="priority" defaultValue={params.priority} className="rounded-md border border-anthracite/15 bg-white px-3 py-2 text-sm">
           <option value="">Alle Prioritäten</option>
-          {priorityOptions.map(p => <option key={p} value={p}>{p}</option>)}
+          {priorityOptions.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
         </select>
         <button type="submit" className="rounded-md border border-anthracite/20 px-4 py-2 text-sm hover:bg-anthracite/5">Filtern</button>
         <Link href="/admin/anfragen" className="rounded-md border border-anthracite/20 px-4 py-2 text-sm hover:bg-anthracite/5">Zurücksetzen</Link>
@@ -123,7 +144,7 @@ export default async function AdminAnfragen({ searchParams }: { searchParams: Pr
                   <td className="px-4 py-3 text-anthracite/80">{inq.service_type || '—'}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-block px-2 py-0.5 text-xs rounded ${inq.status === 'new' ? 'bg-ruby/10 text-ruby' : 'bg-anthracite/10'}`}>
-                      {inq.status}
+                      {statusOptions.find(s => s.value === inq.status)?.label || inq.status}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-anthracite/80">{inq.priority}</td>
