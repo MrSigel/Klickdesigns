@@ -34,22 +34,10 @@ create table if not exists public.customers (
   updated_at timestamptz not null default now()
 );
 
--- Upgrade for existing installations
-ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS customer_type text;
-ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'interessent';
+-- Note: Upgrades for existing installations are moved after all CREATE TABLE statements
+-- to allow clean one-shot execution on new databases.
 
-ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS name text;
-ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS email text;
-ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS phone text;
-ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS company text;
-ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS project_name text;
-ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS source text DEFAULT 'website';
-ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS consent_privacy boolean DEFAULT false;
-ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS confirmation_email_sent_at timestamptz;
-
-ALTER TABLE public.offers ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'draft';
-
--- Constraints for customers
+-- Constraints for customers (customers table already created above)
 ALTER TABLE public.customers
   DROP CONSTRAINT IF EXISTS customers_status_check;
 ALTER TABLE public.customers
@@ -486,20 +474,6 @@ create table if not exists public.invoices (
   updated_at timestamptz not null default now()
 );
 
--- Upgrade for existing installations
-ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS invoice_number text;
-ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS project_id uuid;
-ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS notes text;
-ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS subtotal_cents integer DEFAULT 0;
-ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS discount_cents integer DEFAULT 0;
-ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS invoice_date date DEFAULT current_date;
-ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS payment_terms text;
-ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS sent_at timestamptz;
-ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS cancelled_at timestamptz;
-
-ALTER TABLE public.invoices DROP CONSTRAINT IF EXISTS invoices_status_check;
-ALTER TABLE public.invoices ADD CONSTRAINT invoices_status_check CHECK (status IN ('open', 'paid', 'cancelled'));
-
 create table if not exists public.invoice_items (
   id uuid primary key default gen_random_uuid(),
   invoice_id uuid references public.invoices(id) on delete cascade not null,
@@ -513,6 +487,41 @@ create table if not exists public.invoice_items (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- =============================================================================
+-- Upgrades for existing installations (safe to run after all CREATE TABLEs)
+-- =============================================================================
+-- Moved here so the full klickdesigns_schema.sql runs cleanly on a new Supabase
+-- project without "relation does not exist" errors.
+
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS customer_type text;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'interessent';
+
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS name text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS email text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS phone text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS company text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS project_name text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS source text DEFAULT 'website';
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS consent_privacy boolean DEFAULT false;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS confirmation_email_sent_at timestamptz;
+
+ALTER TABLE public.offers ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'draft';
+
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'open';
+
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS invoice_number text;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS project_id uuid;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS notes text;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS subtotal_cents integer DEFAULT 0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS discount_cents integer DEFAULT 0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS invoice_date date DEFAULT current_date;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS payment_terms text;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS sent_at timestamptz;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS cancelled_at timestamptz;
+
+ALTER TABLE public.invoices DROP CONSTRAINT IF EXISTS invoices_status_check;
+ALTER TABLE public.invoices ADD CONSTRAINT invoices_status_check CHECK (status IN ('open', 'paid', 'cancelled'));
 
 -- =============================================================================
 -- Indexes
@@ -1072,33 +1081,38 @@ values
 on conflict (slug) do nothing;
 
 -- =============================================================================
--- Storage preparation: portfolio-media
+-- Storage preparation: portfolio-media  (WICHTIG: MANUELL AUSFÜHREN!)
 -- =============================================================================
--- Bucket "portfolio-media" must be created in Supabase Dashboard (Storage).
--- Recommended: Create as PUBLIC bucket to allow direct public URLs for landing page display.
+-- 1. Gehe in Supabase Dashboard → Storage → "New bucket"
+-- 2. Bucket-Name exakt: portfolio-media
+-- 3. Public Bucket aktivieren (wichtig für öffentliche Anzeige auf der Landingpage)
+-- 4. Bucket erstellen
 --
--- Public read access for portfolio assets (images/videos/pdfs) so visible references render on landing:
---   - Use Supabase Dashboard > Storage > portfolio-media > Policies, or run equivalent SQL.
+-- 5. Policies setzen (Bucket → Policies Tab oder SQL Editor):
 --
--- Example policies (for reference, apply via Dashboard or SQL editor):
---
+--   -- Öffentliches Lesen (für Landingpage)
 --   CREATE POLICY "Public can read portfolio-media"
 --   ON storage.objects FOR SELECT
 --   TO anon, authenticated
 --   USING (bucket_id = 'portfolio-media');
 --
+--   -- Nur Admins dürfen hochladen/ändern/löschen
 --   CREATE POLICY "Admins upload to portfolio-media"
 --   ON storage.objects FOR INSERT
 --   TO authenticated
 --   WITH CHECK (bucket_id = 'portfolio-media' AND public.is_admin());
 --
---   CREATE POLICY "Admins update/delete portfolio-media"
+--   CREATE POLICY "Admins manage portfolio-media"
 --   ON storage.objects FOR UPDATE, DELETE
 --   TO authenticated
 --   USING (bucket_id = 'portfolio-media' AND public.is_admin());
 --
--- Only portfolio files (no private customer uploads) belong here.
--- Service role key is never used in client code.
+-- Hinweis: Diese Policies + Bucket MÜSSEN manuell angelegt werden,
+-- bevor Referenzen mit Bildern/Videos/PDFs hochgeladen werden können.
+-- Ohne Bucket → "Bucket not found" Fehler (wie im Admin gesehen).
+--
+-- Nur Portfolio-Dateien hier ablegen (keine privaten Kundendateien).
+-- Service Role Key wird NIE im Client verwendet.
 -- =============================================================================
 
 -- =============================================================================

@@ -166,10 +166,14 @@ export default function AdminReferenzen() {
     const ext = file.name.split('.').pop()?.toLowerCase() || 'bin'
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '').slice(0, 40) || 'file'
     const fileName = `ref-${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`
-    const path = `portfolio-media/${fileName}`
+    const path = fileName
     const { error } = await supabase.storage.from('portfolio-media').upload(path, file, { upsert: false })
     if (error) {
       console.error('Storage upload error', error)
+      // Verbesserte Fehlermeldung für häufige Setup-Probleme
+      if (error.message?.toLowerCase().includes('bucket not found')) {
+        console.error('Hinweis: Der Bucket "portfolio-media" existiert nicht. Bitte in Supabase Dashboard > Storage anlegen (Public). Siehe Kommentare in supabase/klickdesigns_schema.sql')
+      }
       return null
     }
     let mType: 'image' | 'video' | 'pdf' = 'image'
@@ -203,7 +207,7 @@ export default function AdminReferenzen() {
           mediaType = uploaded.type
           await logActivity(editing?.id || 'new', 'media_uploaded', `Medium hochgeladen für: ${form.title}`)
         } else {
-          setError('Upload fehlgeschlagen. Bitte erneut versuchen.')
+          setError('Upload fehlgeschlagen. Bucket "portfolio-media" fehlt? Bitte in Supabase Storage anlegen und Policies setzen (siehe supabase/klickdesigns_schema.sql).')
           return
         }
       } else if (removeMedia && editing) {
