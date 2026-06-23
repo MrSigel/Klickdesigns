@@ -2,14 +2,24 @@ import Image from 'next/image';
 
 const footerLinkColumns = [
   {
-    title: "Seite",
+    title: "Leistungen",
     links: [
-      { label: "Leistungen", href: "#leistungen" },
-      { label: "Logo-Sprint", href: "#logo-sprint" },
-      { label: "Pakete", href: "#pakete" },
-      { label: "Beispiele", href: "#beispiele" },
-      { label: "FAQ", href: "#faq" },
-      { label: "Kontakt", href: "#kontakt" },
+      { label: "Logo vektorisieren", href: "/logo-vektorisieren" },
+      { label: "Logo-Sprint", href: "/logo-sprint" },
+      { label: "Design-Finalisierung", href: "/design-finalisierung" },
+      { label: "Sticker-Design", href: "/sticker-design" },
+      { label: "Flyer-Design", href: "/flyer-design" },
+      { label: "Social-Media-Design", href: "/social-media-design" },
+    ],
+  },
+  {
+    title: "Zielgruppen",
+    links: [
+      { label: "Für Unternehmen", href: "/grafikdesign-fuer-unternehmen" },
+      { label: "Für Vereine", href: "/grafikdesign-fuer-vereine" },
+      { label: "Für Creator", href: "/grafikdesign-fuer-creator" },
+      { label: "Autoaufkleber", href: "/autoaufkleber-design" },
+      { label: "Logo-Design", href: "/logo-design" },
     ],
   },
   {

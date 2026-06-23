@@ -6,12 +6,12 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const navLinks = [
-  { label: "Leistungen", href: "#leistungen" },
-  { label: "Logo-Sprint", href: "#logo-sprint" },
-  { label: "Pakete", href: "#pakete" },
-  { label: "Beispiele", href: "#beispiele" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Kontakt", href: "#kontakt" },
+  { label: "Leistungen", href: "/logo-vektorisieren" },
+  { label: "Logo-Sprint", href: "/logo-sprint" },
+  { label: "Pakete", href: "/#pakete" },
+  { label: "Beispiele", href: "/#beispiele" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Kontakt", href: "/kontakt" },
 ];
 
 function IconMenu({ className = "" }: { className?: string }) {
