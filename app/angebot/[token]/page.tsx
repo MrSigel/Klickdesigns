@@ -5,7 +5,7 @@ async function getOfferByToken(token: string) {
   const supabase = await createClient()
   const { data } = await supabase
     .from('offers')
-    .select('*, customer:customers(name, email)')
+    .select('id, offer_number, title, intro_text, total_cents, currency, valid_until, accepted_at, converted_project_id')
     .eq('public_token', token)
     .single()
   return data
@@ -83,8 +83,8 @@ export default async function PublicOfferPage({ params }: { params: Promise<{ to
         </div>
 
         <div className="mb-6">
-          <div className="text-sm text-anthracite/60">Für</div>
-          <div className="text-lg">{offer.customer?.name}</div>
+          <div className="text-sm text-anthracite/60">Angebotsdetails</div>
+          <div className="text-lg font-medium">{offer.title}</div>
         </div>
 
         <div className="mb-6">
