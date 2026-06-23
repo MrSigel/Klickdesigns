@@ -252,17 +252,38 @@ export default function AdminAkquise() {
         />
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="rounded-md border border-anthracite/15 bg-white px-3 py-2 text-sm">
           <option value="">Alle Status</option>
-          <option value="open">open</option>
-          <option value="done">done</option>
-          <option value="archived">archived</option>
+          <option value="open">Offen</option>
+          <option value="done">Erledigt</option>
+          <option value="archived">Archiviert</option>
         </select>
         <select value={sourceFilter} onChange={e => setSourceFilter(e.target.value)} className="rounded-md border border-anthracite/15 bg-white px-3 py-2 text-sm">
           <option value="">Alle Quellen</option>
-          {['website','facebook','instagram','social_media','lokal','empfehlung','google','verein','creator','shop','sonstiges'].map(s => <option key={s} value={s}>{s}</option>)}
+          {[
+            {value:'website', label:'Website'},
+            {value:'facebook', label:'Facebook'},
+            {value:'instagram', label:'Instagram'},
+            {value:'social_media', label:'Social Media'},
+            {value:'lokal', label:'Lokal'},
+            {value:'empfehlung', label:'Empfehlung'},
+            {value:'google', label:'Google'},
+            {value:'verein', label:'Verein'},
+            {value:'creator', label:'Creator'},
+            {value:'shop', label:'Shop'},
+            {value:'sonstiges', label:'Sonstiges'},
+          ].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
         <select value={recommendedFilter} onChange={e => setRecommendedFilter(e.target.value)} className="rounded-md border border-anthracite/15 bg-white px-3 py-2 text-sm">
           <option value="">Alle empfohlenen Leistungen</option>
-          {['logo_sprint','logo_vectorization','design_finalization','business_presence','sticker_design','social_media_design','flyer_design','other'].map(s => <option key={s} value={s}>{s}</option>)}
+          {[
+            {value:'logo_sprint', label:'Logo-Sprint'},
+            {value:'logo_vectorization', label:'Logo-Vektorisierung'},
+            {value:'design_finalization', label:'Design-Finalisierung'},
+            {value:'business_presence', label:'Business-Auftritt'},
+            {value:'sticker_design', label:'Sticker-Design'},
+            {value:'social_media_design', label:'Social-Media-Design'},
+            {value:'flyer_design', label:'Flyer-Design'},
+            {value:'other', label:'Sonstiges'},
+          ].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
         <select value={doNotContactFilter} onChange={e => setDoNotContactFilter(e.target.value)} className="rounded-md border border-anthracite/15 bg-white px-3 py-2 text-sm">
           <option value="">Alle Kontakt-Status</option>
@@ -372,7 +393,19 @@ export default function AdminAkquise() {
                 <label className="block text-anthracite/70 text-xs mb-1">Quelle</label>
                 <select value={formData.source || ''} onChange={e => setFormData({...formData, source: e.target.value})} className="w-full rounded border border-anthracite/15 px-3 py-2">
                   <option value="">—</option>
-                  {['website','facebook','instagram','social_media','lokal','empfehlung','google','verein','creator','shop','sonstiges'].map(s => <option key={s} value={s}>{s}</option>)}
+                  {[
+                    {value: 'website', label: 'Website'},
+                    {value: 'facebook', label: 'Facebook'},
+                    {value: 'instagram', label: 'Instagram'},
+                    {value: 'social_media', label: 'Social Media'},
+                    {value: 'lokal', label: 'Lokal'},
+                    {value: 'empfehlung', label: 'Empfehlung'},
+                    {value: 'google', label: 'Google'},
+                    {value: 'verein', label: 'Verein'},
+                    {value: 'creator', label: 'Creator'},
+                    {value: 'shop', label: 'Shop'},
+                    {value: 'sonstiges', label: 'Sonstiges'},
+                  ].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
               <div className="md:col-span-2">
@@ -383,15 +416,24 @@ export default function AdminAkquise() {
                 <label className="block text-anthracite/70 text-xs mb-1">Empfohlene Leistung</label>
                 <select value={formData.recommended_service || ''} onChange={e => setFormData({...formData, recommended_service: e.target.value})} className="w-full rounded border border-anthracite/15 px-3 py-2">
                   <option value="">—</option>
-                  {['logo_sprint','logo_vectorization','design_finalization','business_presence','sticker_design','social_media_design','flyer_design','other'].map(s => <option key={s} value={s}>{s}</option>)}
+                  {[
+                    {value: 'logo_sprint', label: 'Logo-Sprint'},
+                    {value: 'logo_vectorization', label: 'Logo-Vektorisierung'},
+                    {value: 'design_finalization', label: 'Design-Finalisierung'},
+                    {value: 'business_presence', label: 'Business-Auftritt'},
+                    {value: 'sticker_design', label: 'Sticker-Design'},
+                    {value: 'social_media_design', label: 'Social-Media-Design'},
+                    {value: 'flyer_design', label: 'Flyer-Design'},
+                    {value: 'other', label: 'Sonstiges'},
+                  ].map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-anthracite/70 text-xs mb-1">Status</label>
                 <select value={formData.status || 'open'} onChange={e => setFormData({...formData, status: e.target.value})} className="w-full rounded border border-anthracite/15 px-3 py-2">
-                  <option value="open">open</option>
-                  <option value="done">done</option>
-                  <option value="archived">archived</option>
+                  <option value="open">Offen</option>
+                  <option value="done">Erledigt</option>
+                  <option value="archived">Archiviert</option>
                 </select>
               </div>
               <div className="md:col-span-2">
