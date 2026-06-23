@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 type LogoTemplate = {
   id: string
@@ -115,29 +117,7 @@ export default function LogoVorlagenPage() {
 
   return (
     <div className="min-h-screen bg-offwhite">
-      {/* Simple Navigation matching style */}
-      <header className="sticky top-0 z-50 border-b border-anthracite/10 bg-white/95 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="font-display text-lg font-semibold tracking-tight text-anthracite">Klickdesigns</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              <Link href="/#leistungen" className="text-anthracite/80 hover:text-anthracite">Leistungen</Link>
-              <Link href="/#pakete" className="text-anthracite/80 hover:text-anthracite">Pakete</Link>
-              <Link href="/#beispiele" className="text-anthracite/80 hover:text-anthracite">Beispiele</Link>
-              <Link href="/logo-vorlagen" className="text-anthracite/80 hover:text-anthracite">Logo Vorlagen</Link>
-              <Link href="/#kontakt" className="text-anthracite/80 hover:text-anthracite">Kontakt</Link>
-            </nav>
-            <Link 
-              href="/#kontakt" 
-              className="rounded-md bg-ruby px-4 py-1.5 text-sm font-semibold text-offwhite hover:bg-ruby/90"
-            >
-              Anfrage stellen
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="mx-auto max-w-7xl px-5 py-12 sm:px-8">
         <div className="mb-10 text-center">
@@ -198,17 +178,7 @@ export default function LogoVorlagenPage() {
         )}
       </main>
 
-      {/* Simple Footer */}
-      <footer className="border-t border-anthracite/10 bg-white mt-16">
-        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 text-sm text-anthracite/60 flex flex-col md:flex-row gap-2 md:items-center md:justify-between">
-          <div>© {new Date().getFullYear()} Klickdesigns. Alle Rechte vorbehalten.</div>
-          <div className="flex gap-4">
-            <Link href="/impressum">Impressum</Link>
-            <Link href="/datenschutz">Datenschutz</Link>
-            <Link href="/agb">AGB</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Download Modal */}
       {modalOpen && selectedTemplate && selectedType && (

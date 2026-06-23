@@ -11,6 +11,8 @@ import {
   useTransform,
   type Variants,
 } from "framer-motion";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const professionalServiceJsonLd = {
   "@context": "https://schema.org",
@@ -179,14 +181,6 @@ function Reveal({
 /*  Content data                                                           */
 /* ----------------------------------------------------------------------- */
 
-const navLinks = [
-  { label: "Leistungen", href: "#leistungen" },
-  { label: "Logo-Sprint", href: "#logo-sprint" },
-  { label: "Pakete", href: "#pakete" },
-  { label: "Beispiele", href: "#beispiele" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Kontakt", href: "#kontakt" },
-];
 
 const audienceChips = [
   "Kleine Unternehmen",
@@ -473,117 +467,7 @@ const haveOptions = [
   "Noch nichts",
 ];
 
-const footerLinkColumns = [
-  {
-    title: "Seite",
-    links: [
-      { label: "Leistungen", href: "#leistungen" },
-      { label: "Logo-Sprint", href: "#logo-sprint" },
-      { label: "Pakete", href: "#pakete" },
-      { label: "Beispiele", href: "#beispiele" },
-      { label: "FAQ", href: "#faq" },
-      { label: "Kontakt", href: "#kontakt" },
-    ],
-  },
-  {
-    title: "Rechtliches",
-    links: [
-      { label: "Impressum", href: "/impressum" },
-      { label: "Datenschutz", href: "/datenschutz" },
-      { label: "AGB", href: "/agb" },
-      { label: "Widerruf", href: "/widerruf" },
-      { label: "Cookie-Einstellungen", href: "/cookie-einstellungen" },
-    ],
-  },
-];
 
-/* ----------------------------------------------------------------------- */
-/*  Header                                                                  */
-/* ----------------------------------------------------------------------- */
-
-function Header() {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <header className="sticky top-0 z-50 border-b border-anthracite/10 bg-offwhite/90 shadow-[0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[74px] max-w-7xl items-center justify-between px-5 py-3 sm:px-8">
-        <a href="#top" className="flex items-center gap-2 py-1" aria-label="Klickdesigns Startseite">
-          <Image
-            src="/brand/klickdesigns-logo.svg"
-            alt="Klickdesigns Logo"
-            width={300}
-            height={71}
-            className="h-10 w-auto sm:h-11"
-            priority
-          />
-        </a>
-
-        <nav className="hidden items-center gap-8 xl:gap-10 lg:flex" aria-label="Hauptnavigation">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="group relative py-2 text-[14px] font-semibold text-anthracite/70 transition-colors hover:text-anthracite"
-            >
-              {link.label}
-              <span className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-ruby transition-transform duration-300 group-hover:scale-x-100" />
-            </a>
-          ))}
-        </nav>
-
-        <div className="hidden lg:block">
-          <a
-            href="#kontakt"
-            className="group inline-flex items-center gap-2 rounded-md bg-ruby px-5 py-3 text-[14px] font-semibold text-offwhite shadow-[0_8px_22px_-10px_rgba(153,0,0,0.65)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-12px_rgba(153,0,0,0.7)]"
-          >
-            Design anfragen
-            <IconArrow className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </a>
-        </div>
-
-        <button
-          aria-label={open ? "Menü schließen" : "Menü öffnen"}
-          onClick={() => setOpen((v) => !v)}
-          className="flex h-11 w-11 items-center justify-center rounded-md border border-anthracite/10 bg-white/70 text-anthracite transition-colors hover:border-ruby/30 hover:text-ruby lg:hidden"
-        >
-          {open ? <IconClose className="h-6 w-6" /> : <IconMenu className="h-6 w-6" />}
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="overflow-hidden border-t border-anthracite/10 bg-offwhite lg:hidden"
-          >
-            <div className="flex flex-col gap-1 px-5 py-5 sm:px-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-3 text-[16px] font-semibold text-anthracite/80 transition-colors hover:bg-anthracite/5 hover:text-ruby"
-                >
-                  {link.label}
-                </a>
-              ))}
-              <a
-                href="#kontakt"
-                onClick={() => setOpen(false)}
-                className="mt-3 inline-flex items-center justify-center gap-2 rounded-md bg-ruby px-5 py-3.5 text-[15px] font-semibold text-offwhite"
-              >
-                Design anfragen
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
-  );
-}
 
 /* ----------------------------------------------------------------------- */
 /*  Hero                                                                    */
@@ -1692,64 +1576,6 @@ function Contact() {
   );
 }
 
-/* ----------------------------------------------------------------------- */
-/*  Footer                                                                  */
-/* ----------------------------------------------------------------------- */
-
-function Footer() {
-  return (
-    <footer className="border-t border-anthracite/10 bg-anthracite px-5 py-16 text-offwhite sm:px-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-12 sm:grid-cols-[1.2fr_0.8fr_0.8fr]">
-          <div>
-            <div className="flex items-center">
-              <Image
-                src="/brand/klickdesigns-logo-light.svg"
-                alt="Klickdesigns Logo"
-                width={300}
-                height={71}
-                className="h-8 w-auto"
-                loading="lazy"
-              />
-            </div>
-            <p className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-offwhite/55">
-              Mediengestaltung und Grafikdesign für Logos, Flyer und
-              Social-Media-Grafiken – aufbereitet für Web, Druck, Sticker,
-              Kleidung und Social Media.
-            </p>
-          </div>
-
-          {footerLinkColumns.map((col) => (
-            <div key={col.title}>
-              <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-offwhite/40">
-                {col.title}
-              </span>
-              <ul className="mt-4 space-y-2.5">
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-[13.5px] text-offwhite/65 transition-colors hover:text-offwhite"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-14 flex flex-col gap-3 border-t border-offwhite/10 pt-6 text-[12.5px] text-offwhite/40 sm:flex-row sm:items-center sm:justify-between">
-          <span>© {new Date().getFullYear()} Klickdesigns. Alle Rechte vorbehalten.</span>
-          <span className="font-mono text-[11px] uppercase tracking-wide">
-            Design · Finalisierung · Aufbereitung
-          </span>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 /* ----------------------------------------------------------------------- */
 /*  Page                                                                    */
