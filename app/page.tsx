@@ -14,9 +14,10 @@ import {
 
 const professionalServiceJsonLd = {
   "@context": "https://schema.org",
-  "@type": "ProfessionalService",
+  "@type": ["LocalBusiness", "ProfessionalService"],
   name: "Klickdesigns",
   description: "Mediengestaltung und Grafikdesign",
+  url: "https://www.klickdesigns.de",
   founder: {
     "@type": "Person",
     name: "Enrico Gross",
@@ -26,14 +27,26 @@ const professionalServiceJsonLd = {
     streetAddress: "Gerther Straße 76",
     postalCode: "44577",
     addressLocality: "Castrop-Rauxel",
+    addressRegion: "Nordrhein-Westfalen",
     addressCountry: "DE",
   },
   telephone: "+49 155 63535989",
-  areaServed: {
-    "@type": "Country",
-    name: "Deutschland",
-  },
-  serviceType: ["Mediengestaltung", "Grafikdesign"],
+  areaServed: [
+    {
+      "@type": "City",
+      name: "Castrop-Rauxel",
+    },
+    {
+      "@type": "Country",
+      name: "Deutschland",
+    },
+  ],
+  serviceType: [
+    "Mediengestaltung",
+    "Grafikdesign",
+    "Logo-Vektorisierung",
+    "Design-Finalisierung",
+  ],
 };
 
 /* ----------------------------------------------------------------------- */

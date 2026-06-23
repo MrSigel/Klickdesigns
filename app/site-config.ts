@@ -1,7 +1,7 @@
 export const SITE_NAME = "Klickdesigns";
 
-export const SITE_URL = "http://localhost:3000";
-export const HAS_FINAL_DOMAIN = false;
+export const SITE_URL = "https://www.klickdesigns.de";
+export const HAS_FINAL_DOMAIN = true;
 
 export const SITE_TITLE =
   "Klickdesigns – Mediengestaltung, Logo-Vektorisierung & Design-Finalisierung";
