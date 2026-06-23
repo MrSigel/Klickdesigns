@@ -13,9 +13,16 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: HAS_FINAL_DOMAIN ? new URL(SITE_URL) : undefined,
-  title: SITE_TITLE,
+  title: {
+    default: SITE_TITLE,
+    template: "%s | Klickdesigns",
+  },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
+  authors: [{ name: "Enrico Gross", url: SITE_URL }],
+  creator: "Enrico Gross",
+  publisher: SITE_NAME,
+  category: "Design & Grafik",
   keywords: [
     "Mediengestaltung",
     "Grafikdesign",
@@ -33,15 +40,15 @@ export const metadata: Metadata = {
     "Grafikdesign Castrop-Rauxel",
     "Logo Design Ruhrgebiet",
     "Mediengestaltung Nordrhein-Westfalen",
+    "Grafikdesign Deutschland",
   ],
-  creator: SITE_NAME,
-  publisher: SITE_NAME,
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     type: "website",
     locale: "de_DE",
     siteName: SITE_NAME,
+    url: SITE_URL,
   },
   twitter: {
     card: "summary",
