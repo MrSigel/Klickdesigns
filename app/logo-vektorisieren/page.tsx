@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { deliveryTimes } from '../site-config';
 
 export const metadata = {
   title: 'Logo vektorisieren lassen – SVG & PNG für Druck, Web und Sticker | Klickdesigns',
@@ -57,7 +58,7 @@ export default function LogoVektorisierenPage() {
           <p className="font-semibold">Preis: Logo-Vektorisierung ab 49 €</p>
           <p className="mt-2 text-sm text-anthracite/60">Geeignet für einfache, gut erkennbare Logos. Keine komplette Neugestaltung oder komplexe Illustrationen.</p>
           <p className="mt-3 text-xs text-anthracite/60">Klickdesigns aus Castrop-Rauxel unterstützt Kunden im Ruhrgebiet, NRW und deutschlandweit.</p>
-          <p className="mt-2 text-xs text-anthracite/60">In der Regel erhältst du innerhalb weniger Werktage erste Ergebnisse oder Rückmeldung.</p>
+          <p className="mt-2 text-xs text-anthracite/60">Lieferzeit ca. {deliveryTimes.logoVektorisierung} • In der Regel innerhalb weniger Werktage.</p>
         </div>
 
         <div className="mt-12">

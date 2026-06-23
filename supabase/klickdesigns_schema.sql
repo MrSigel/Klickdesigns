@@ -429,6 +429,59 @@ create table if not exists public.email_logs (
 create index if not exists email_logs_recipient_idx on public.email_logs (recipient);
 create index if not exists email_logs_created_at_idx on public.email_logs (created_at desc);
 
+-- Leads for exit-intent popup and other lead magnets
+create table if not exists public.leads (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  source text not null check (source in ('exit_popup', 'contact_form', 'logo_vorlagen', 'other')),
+  consent_given boolean not null default false,
+  created_at timestamptz not null default now(),
+  metadata jsonb default '{}'::jsonb
+);
+
+create index if not exists idx_leads_email on public.leads (email);
+create index if not exists idx_leads_source on public.leads (source);
+
+-- Event tracking for WhatsApp clicks etc.
+create table if not exists public.lead_events (
+  id uuid primary key default gen_random_uuid(),
+  event_type text not null,
+  page_path text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_lead_events_type on public.lead_events (event_type);
+
+-- RLS for new tables
+alter table public.leads enable row level security;
+alter table public.lead_events enable row level security;
+
+-- Allow public (anon) insert from client components (popup, buttons)
+drop policy if exists "Allow public insert on leads" on public.leads;
+create policy "Allow public insert on leads"
+  on public.leads for insert
+  to anon
+  with check (true);
+
+drop policy if exists "Allow public insert on lead_events" on public.lead_events;
+create policy "Allow public insert on lead_events"
+  on public.lead_events for insert
+  to anon
+  with check (true);
+
+-- Service role / admin read
+drop policy if exists "Allow service role read on leads" on public.leads;
+create policy "Allow service role read on leads"
+  on public.leads for select
+  to service_role
+  using (true);
+
+drop policy if exists "Allow service role read on lead_events" on public.lead_events;
+create policy "Allow service role read on lead_events"
+  on public.lead_events for select
+  to service_role
+  using (true);
+
 create table if not exists public.service_packages (
   id uuid primary key default gen_random_uuid(),
   slug text not null unique,

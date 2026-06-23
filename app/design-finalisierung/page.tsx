@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { deliveryTimes } from '../site-config';
 
 export const metadata = {
   title: 'Design-Finalisierung – bestehende Entwürfe, Flyer & Social-Media-Grafiken optimieren | Klickdesigns',
@@ -32,7 +33,7 @@ export default function DesignFinalisierungPage() {
         <div className="mt-10 rounded-xl border p-6">
           <p className="font-semibold">Preis: Design-Finalisierung ab 149 €</p>
           <p className="text-sm mt-1">Inklusive 1 Korrekturrunde. Export als PNG, JPG oder PDF nach Vereinbarung.</p>
-          <p className="mt-1 text-xs text-anthracite/60">In der Regel innerhalb weniger Werktage je nach Umfang.</p>
+          <p className="mt-1 text-xs text-anthracite/60">Lieferzeit ca. {deliveryTimes.designFinalisierung} • In der Regel innerhalb weniger Werktage je nach Umfang.</p>
         </div>
 
         <div className="mt-12">

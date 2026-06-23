@@ -10,6 +10,8 @@ import {
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import ExitIntentPopup from "./components/ExitIntentPopup";
+import WhatsappButton from "./components/WhatsappButton";
 
 export const metadata: Metadata = {
   metadataBase: HAS_FINAL_DOMAIN ? new URL(SITE_URL) : undefined,
@@ -82,6 +84,8 @@ export default function RootLayout({
       <body className="font-body antialiased">
         {children}
         <CookieConsent />
+        <ExitIntentPopup />
+        <WhatsappButton />
         <Analytics />
         <SpeedInsights />
       </body>

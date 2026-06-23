@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { deliveryTimes } from '../site-config';
 
 export const metadata = {
   title: 'Logo-Sprint für 20 € – schnelle Logo-Richtungen für dein Projekt | Klickdesigns',
@@ -49,7 +50,7 @@ export default function LogoSprintPage() {
 
         <div className="mt-10 rounded-xl border border-ruby/20 bg-ruby/5 p-6">
           <p className="font-semibold">Preis: Logo-Sprint 20 € fix</p>
-          <p className="mt-1 text-xs text-anthracite/60">In der Regel innerhalb weniger Werktage erste Richtungen und Finalisierung.</p>
+          <p className="mt-1 text-xs text-anthracite/60">Lieferzeit: ca. 48 Stunden • In der Regel innerhalb weniger Werktage erste Richtungen und Finalisierung.</p>
         </div>
 
         <div className="mt-12">

@@ -16,6 +16,7 @@ export default function KontaktPage() {
       setError(result.error);
     } else {
       setSubmitted(true);
+      try { sessionStorage.setItem('contactSubmitted', 'true') } catch {}
     }
   }
 

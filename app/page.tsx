@@ -5,6 +5,7 @@ import { useState, useRef, useEffect, Suspense, type ReactNode, type FormEvent }
 import { useSearchParams } from "next/navigation";
 import { submitInquiry } from "./actions/submit-inquiry";
 import { createClient } from "@/lib/supabase/client";
+import { deliveryTimes } from "./site-config";
 import {
   motion,
   AnimatePresence,
@@ -232,6 +233,7 @@ const logoSprintExcluded = [
 type Pkg = {
   name: string;
   price: string;
+  delivery?: string;
   description: string;
   included: string[];
   excluded?: string[];
@@ -242,6 +244,7 @@ const packages: Pkg[] = [
   {
     name: "Logo-Vektorisierung",
     price: "ab 49 €",
+    delivery: deliveryTimes.logoVektorisierung,
     description:
       "Du hast dein Logo nur als PNG, JPG oder Screenshot? Wir bereiten dein bestehendes Logo als nutzbare Datei auf – ideal für Website, Sticker, Kleidung, Druck und Social Media.",
     included: [
@@ -262,6 +265,7 @@ const packages: Pkg[] = [
   {
     name: "Design-Finalisierung",
     price: "ab 149 €",
+    delivery: deliveryTimes.designFinalisierung,
     description:
       "Für bestehende Flyer, Canva-Designs, Social-Media-Grafiken oder Designentwürfe, die professioneller, klarer und nutzbarer werden sollen.",
     included: [
@@ -276,6 +280,7 @@ const packages: Pkg[] = [
   {
     name: "Business-Auftritt",
     price: "ab 299 €",
+    delivery: deliveryTimes.businessAuftritt,
     description:
       "Für Unternehmen, die mehrere Designs in einem einheitlichen Look benötigen.",
     included: [
@@ -600,6 +605,10 @@ function Hero() {
               Angebote ansehen
             </a>
           </div>
+
+          <p className="mt-4 text-sm text-anthracite/70">
+            Reicht ein Foto oder Screenshot? <a href="#kontakt" className="underline hover:text-ruby">Ja. Einfach hochladen, wir machen den Rest.</a>
+          </p>
         </Reveal>
 
         <Reveal delay={0.1}>
@@ -801,6 +810,9 @@ function Packages() {
                   }`}
                 >
                   {pkg.price}
+                </p>
+                <p className="mt-1 text-[12px] text-anthracite/50">
+                  Lieferzeit: ca. {pkg.delivery}
                 </p>
                 <p
                   className={`mt-5 text-[15px] leading-[1.7] ${
@@ -1432,6 +1444,7 @@ function Contact() {
     const result = await submitInquiry(data);
     if (result?.success) {
       setSubmitted(true);
+      try { sessionStorage.setItem('contactSubmitted', 'true') } catch {}
     } else if (result?.error) {
       // simple error for now
       alert(result.error);
