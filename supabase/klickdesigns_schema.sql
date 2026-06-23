@@ -273,6 +273,67 @@ ALTER TABLE public.search_results
   ADD CONSTRAINT search_results_recommended_service_check
   CHECK (recommended_service IS NULL OR recommended_service IN ('logo_sprint', 'logo_vectorization', 'design_finalization', 'business_presence', 'sticker_design', 'social_media_design', 'flyer_design', 'other'));
 
+create table if not exists public.social_categories (
+  id uuid primary key default gen_random_uuid(),
+  name text not null unique,
+  sort_order integer default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table if not exists public.social_posts (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  platform text not null,
+  category text,
+  post_text text not null,
+  hashtags text,
+  cta text,
+  target_url text,
+  media_path text,
+  media_type text,
+  planned_for timestamptz,
+  is_done boolean default false,
+  done_at timestamptz,
+  notes text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table if not exists public.social_templates (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  category text,
+  platform text,
+  subject_hint text,
+  template_text text not null,
+  hashtags text,
+  cta text,
+  is_active boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Constraints for social_posts
+ALTER TABLE public.social_posts
+  DROP CONSTRAINT IF EXISTS social_posts_platform_check;
+ALTER TABLE public.social_posts
+  ADD CONSTRAINT social_posts_platform_check
+  CHECK (platform IN ('facebook', 'instagram', 'tiktok'));
+
+ALTER TABLE public.social_posts
+  DROP CONSTRAINT IF EXISTS social_posts_media_type_check;
+ALTER TABLE public.social_posts
+  ADD CONSTRAINT social_posts_media_type_check
+  CHECK (media_type IS NULL OR media_type IN ('image', 'video', 'other'));
+
+-- Constraints for social_templates
+ALTER TABLE public.social_templates
+  DROP CONSTRAINT IF EXISTS social_templates_platform_check;
+ALTER TABLE public.social_templates
+  ADD CONSTRAINT social_templates_platform_check
+  CHECK (platform IS NULL OR platform IN ('facebook', 'instagram', 'tiktok'));
+
 create table if not exists public.service_packages (
   id uuid primary key default gen_random_uuid(),
   slug text not null unique,
@@ -493,6 +554,19 @@ create index if not exists search_results_saved_as_lead_idx
 create index if not exists search_results_created_at_idx
   on public.search_results (created_at DESC);
 
+create index if not exists social_posts_platform_idx on public.social_posts (platform);
+create index if not exists social_posts_category_idx on public.social_posts (category);
+create index if not exists social_posts_planned_for_idx on public.social_posts (planned_for);
+create index if not exists social_posts_is_done_idx on public.social_posts (is_done);
+create index if not exists social_posts_created_at_idx on public.social_posts (created_at DESC);
+
+create index if not exists social_templates_platform_idx on public.social_templates (platform);
+create index if not exists social_templates_category_idx on public.social_templates (category);
+create index if not exists social_templates_is_active_idx on public.social_templates (is_active);
+create index if not exists social_templates_created_at_idx on public.social_templates (created_at DESC);
+
+create index if not exists social_categories_name_idx on public.social_categories (name);
+
 -- =============================================================================
 -- Triggers
 -- =============================================================================
@@ -563,6 +637,21 @@ create trigger search_results_set_updated_at
 before update on public.search_results
 for each row execute function public.set_updated_at();
 
+drop trigger if exists social_categories_set_updated_at on public.social_categories;
+create trigger social_categories_set_updated_at
+before update on public.social_categories
+for each row execute function public.set_updated_at();
+
+drop trigger if exists social_posts_set_updated_at on public.social_posts;
+create trigger social_posts_set_updated_at
+before update on public.social_posts
+for each row execute function public.set_updated_at();
+
+drop trigger if exists social_templates_set_updated_at on public.social_templates;
+create trigger social_templates_set_updated_at
+before update on public.social_templates
+for each row execute function public.set_updated_at();
+
 -- =============================================================================
 -- RLS
 -- =============================================================================
@@ -580,6 +669,9 @@ alter table public.invoices enable row level security;
 alter table public.invoice_items enable row level security;
 alter table public.acquisition_leads enable row level security;
 alter table public.search_results enable row level security;
+alter table public.social_categories enable row level security;
+alter table public.social_posts enable row level security;
+alter table public.social_templates enable row level security;
 
 create or replace function public.is_admin()
 returns boolean
@@ -612,6 +704,9 @@ revoke all on table public.invoices from anon;
 revoke all on table public.invoice_items from anon;
 revoke all on table public.acquisition_leads from anon;
 revoke all on table public.search_results from anon;
+revoke all on table public.social_categories from anon;
+revoke all on table public.social_posts from anon;
+revoke all on table public.social_templates from anon;
 
 -- Allow public read for offers by token (for customer acceptance)
 grant select on table public.offers to anon;
@@ -630,6 +725,9 @@ grant select, insert, update, delete on table public.invoices to authenticated;
 grant select, insert, update, delete on table public.invoice_items to authenticated;
 grant select, insert, update, delete on table public.acquisition_leads to authenticated;
 grant select, insert, update, delete on table public.search_results to authenticated;
+grant select, insert, update, delete on table public.social_categories to authenticated;
+grant select, insert, update, delete on table public.social_posts to authenticated;
+grant select, insert, update, delete on table public.social_templates to authenticated;
 
 drop policy if exists "Admins manage profiles" on public.profiles;
 create policy "Admins manage profiles"
@@ -751,6 +849,30 @@ with check (public.is_admin());
 drop policy if exists "Admins manage search_results" on public.search_results;
 create policy "Admins manage search_results"
 on public.search_results
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins manage social_categories" on public.social_categories;
+create policy "Admins manage social_categories"
+on public.social_categories
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins manage social_posts" on public.social_posts;
+create policy "Admins manage social_posts"
+on public.social_posts
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins manage social_templates" on public.social_templates;
+create policy "Admins manage social_templates"
+on public.social_templates
 for all
 to authenticated
 using (public.is_admin())
