@@ -1078,7 +1078,7 @@ function ReferencesSection() {
     el.scrollBy({ left: direction * amount, behavior: 'smooth' })
   }
 
-  if (!loading && items.length === 0) return null
+  if (loading || items.length === 0) return null
 
   return (
     <section id="referenzen" className="border-b border-anthracite/10 bg-white px-5 py-28 sm:px-8 sm:py-32">
@@ -1093,34 +1093,31 @@ function ReferencesSection() {
           </p>
         </Reveal>
 
-        {loading ? (
-          <div className="mt-12 text-center text-sm text-anthracite/50">Lade Referenzen…</div>
-        ) : (
-          <div className="relative mt-14">
-            <div className="absolute -left-2 top-1/2 z-10 hidden -translate-y-1/2 md:block">
-              <button
-                onClick={() => scroll(-1)}
-                aria-label="Vorherige"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-anthracite/15 bg-white text-anthracite shadow-sm transition hover:border-ruby/30"
-              >
-                ←
-              </button>
-            </div>
-            <div className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 md:block">
-              <button
-                onClick={() => scroll(1)}
-                aria-label="Nächste"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-anthracite/15 bg-white text-anthracite shadow-sm transition hover:border-ruby/30"
-              >
-                →
-              </button>
-            </div>
-
-            <div
-              ref={scrollRef}
-              className="flex gap-5 overflow-x-auto pb-6 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        <div className="relative mt-14">
+          <div className="absolute -left-2 top-1/2 z-10 hidden -translate-y-1/2 md:block">
+            <button
+              onClick={() => scroll(-1)}
+              aria-label="Vorherige"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-anthracite/15 bg-white text-anthracite shadow-sm transition hover:border-ruby/30"
             >
-              {items.map((ref, idx) => {
+              ←
+            </button>
+          </div>
+          <div className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 md:block">
+            <button
+              onClick={() => scroll(1)}
+              aria-label="Nächste"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-anthracite/15 bg-white text-anthracite shadow-sm transition hover:border-ruby/30"
+            >
+              →
+            </button>
+          </div>
+
+          <div
+            ref={scrollRef}
+            className="flex gap-5 overflow-x-auto pb-6 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {items.map((ref, idx) => {
                 const url = getPublicUrl(ref.media_path)
                 const isExternal = !!ref.external_url
                 const CardContent = (
@@ -1192,7 +1189,6 @@ function ReferencesSection() {
               })}
             </div>
           </div>
-        )}
       </div>
     </section>
   )
