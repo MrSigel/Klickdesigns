@@ -414,6 +414,21 @@ create table if not exists public.settings (
   updated_at timestamptz default now()
 );
 
+create table if not exists public.email_logs (
+  id uuid primary key default gen_random_uuid(),
+  recipient text not null,
+  subject text,
+  template_type text,
+  status text not null default 'sent',
+  reference_type text,
+  reference_id uuid,
+  error_message text,
+  created_at timestamptz default now()
+);
+
+create index if not exists email_logs_recipient_idx on public.email_logs (recipient);
+create index if not exists email_logs_created_at_idx on public.email_logs (created_at desc);
+
 create table if not exists public.service_packages (
   id uuid primary key default gen_random_uuid(),
   slug text not null unique,
@@ -1048,6 +1063,18 @@ on public.settings
 for select
 to anon, authenticated
 using (is_public = true);
+
+alter table public.email_logs enable row level security;
+revoke all on table public.email_logs from anon;
+grant select, insert on table public.email_logs to authenticated;
+
+drop policy if exists "Admins manage email_logs" on public.email_logs;
+create policy "Admins manage email_logs"
+on public.email_logs
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
 
 -- No policies are created for anon. In particular, anonymous visitors cannot
 -- select customer data or insert directly into customers/inquiries.

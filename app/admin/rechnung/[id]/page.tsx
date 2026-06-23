@@ -81,13 +81,37 @@ async function sendInvoiceEmail(formData: FormData) {
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD },
   })
 
-  // For attach, would need to generate PDF server side. For now link to public if had, but since no public for invoice yet, just link internal note.
-  // Simplified: send without attach or with note.
+  const { data: settings } = await supabase.from('settings').select('setting_key, setting_value')
+  const map = Object.fromEntries((settings || []).map((s: any) => [s.setting_key, s.setting_value || {}]))
+  const company = map.company_profile || {}
+  const emailSet = map.email_settings || {}
+  const billing = map.billing_settings || {}
+
+  const companyName = company.brand_name || 'Klickdesigns'
+  const sender = emailSet.sender_name || companyName
+  const signature = emailSet.signature || `Mit freundlichen Grüßen\n${companyName}`
+  const invoiceHint = emailSet.invoice_email_hint || ''
+  const bank = billing.bank_holder ? `Kontoinhaber: ${billing.bank_holder}\nIBAN: ${billing.bank_iban || ''}\nBIC: ${billing.bank_bic || ''}\nBank: ${billing.bank_name || ''}` : ''
+
+  const subject = `Ihre Rechnung von ${companyName} – ${inv.invoice_number}`
+
+  const text = `Sehr geehrte Damen und Herren,\n\nanbei Ihre Rechnung ${inv.invoice_number}.\n\nBetrag: ${(inv.total_cents/100).toFixed(2)} ${inv.currency}\n${inv.due_date ? `Fällig: ${new Date(inv.due_date).toLocaleDateString('de-DE')}\n` : ''}${invoiceHint ? `\n${invoiceHint}\n` : ''}\n${bank ? `\nZahlung:\n${bank}\nVerwendungszweck: ${inv.invoice_number}\n` : ''}\n${signature}`
+
+  const html = `
+    <p>Sehr geehrte Damen und Herren,</p>
+    <p>anbei Ihre Rechnung ${inv.invoice_number}.</p>
+    <p><strong>Betrag:</strong> ${(inv.total_cents/100).toFixed(2)} ${inv.currency}${inv.due_date ? `<br><strong>Fällig:</strong> ${new Date(inv.due_date).toLocaleDateString('de-DE')}` : ''}</p>
+    ${invoiceHint ? `<p>${invoiceHint}</p>` : ''}
+    ${bank ? `<p><strong>Zahlung:</strong><br>${bank.replace(/\n/g,'<br>')}<br>Verwendungszweck: ${inv.invoice_number}</p>` : ''}
+    <p>${signature.replace(/\n/g, '<br>')}</p>
+  `
+
   await transporter.sendMail({
-    from: process.env.SMTP_FROM || 'Klickdesigns <no-reply@klickdesigns.de>',
+    from: process.env.SMTP_FROM || `${sender} <no-reply@klickdesigns.de>`,
     to: inv.customer.email,
-    subject: `Ihre Rechnung von Klickdesigns - ${inv.invoice_number}`,
-    text: `Sehr geehrte Damen und Herren,\n\nanbei Ihre Rechnung ${inv.invoice_number}.\n\nBetrag: ${(inv.total_cents/100).toFixed(2)} ${inv.currency}\nFällig: ${inv.due_date || '—'}\n\nMit freundlichen Grüßen\nKlickdesigns`,
+    subject,
+    text,
+    html,
   })
 
   await supabase.from('invoices').update({ sent_at: new Date().toISOString() }).eq('id', id)
