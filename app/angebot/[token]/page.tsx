@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 async function getOfferByToken(token: string) {
   const supabase = await createClient()
@@ -16,39 +16,20 @@ async function acceptOffer(formData: FormData) {
   const supabase = await createClient()
   const token = formData.get('token') as string
 
-  const { data: offer } = await supabase
-    .from('offers')
-    .select('id, accepted_at, converted_project_id')
-    .eq('public_token', token)
-    .single()
-
-  if (!offer || offer.accepted_at) return
+  if (!token) {
+    redirect('/?angebot_angenommen=false')
+  }
 
   const now = new Date().toISOString()
 
+  // Update using public_token (RLS allows via the dedicated policy)
   await supabase
     .from('offers')
-    .update({ accepted_at: now })
+    .update({ accepted_at: now, status: 'accepted' })
     .eq('public_token', token)
 
-  // Create project from offer if not exists
-  if (!offer.converted_project_id) {
-    const { data: newProject } = await supabase
-      .from('projects')
-      .insert({
-        title: `Projekt aus Angebot ${offer.id}`,
-        status: 'open',
-        description: 'Automatisch aus angenommenem Angebot erstellt.',
-      })
-      .select('id')
-      .single()
-
-    if (newProject) {
-      await supabase.from('offers').update({ converted_project_id: newProject.id }).eq('public_token', token)
-    }
-  }
-
-  revalidatePath(`/angebot/${token}`)
+  // Always redirect to homepage with success notice
+  redirect('/?angebot_angenommen=true')
 }
 
 export default async function PublicOfferPage({ params }: { params: Promise<{ token: string }> }) {
@@ -106,8 +87,16 @@ export default async function PublicOfferPage({ params }: { params: Promise<{ to
         )}
 
         {isAccepted ? (
-          <div className="mt-8 rounded-lg bg-green-50 border border-green-200 p-4 text-green-700 text-sm">
-            Vielen Dank! Das Angebot wurde am {new Date(offer.accepted_at).toLocaleDateString('de-DE')} angenommen.
+          <div className="mt-8">
+            <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+              Dieses Angebot wurde bereits angenommen.
+            </div>
+            <a
+              href="/"
+              className="mt-4 block w-full rounded-md border border-anthracite/20 py-3 text-center text-sm font-semibold text-anthracite hover:border-ruby/40"
+            >
+              Zur Startseite
+            </a>
           </div>
         ) : (
           <form action={acceptOffer} className="mt-8">

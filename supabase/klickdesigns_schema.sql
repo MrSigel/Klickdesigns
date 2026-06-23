@@ -963,6 +963,15 @@ for select
 to anon
 using (public_token is not null);
 
+-- Allow anonymous users with a valid public token to mark the offer as accepted (acceptance flow only)
+drop policy if exists "Public can accept offer by token" on public.offers;
+create policy "Public can accept offer by token"
+on public.offers
+for update
+to anon
+using (public_token is not null)
+with check (public_token is not null);
+
 drop policy if exists "Admins manage offer_items" on public.offer_items;
 create policy "Admins manage offer_items"
 on public.offer_items

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef, useEffect, type ReactNode, type FormEvent } from "react";
+import { useState, useRef, useEffect, Suspense, type ReactNode, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { submitInquiry } from "./actions/submit-inquiry";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -1578,6 +1579,45 @@ function Contact() {
 
 
 /* ----------------------------------------------------------------------- */
+/*  Offer acceptance success banner (shown after public /angebot/[token] accept) */
+/* ----------------------------------------------------------------------- */
+
+function OfferAcceptedBanner() {
+  const searchParams = useSearchParams()
+  const [visible, setVisible] = useState(true)
+
+  if (searchParams.get('angebot_angenommen') !== 'true' || !visible) {
+    return null
+  }
+
+  return (
+    <div className="border-b border-ruby/10 bg-white">
+      <div className="mx-auto max-w-3xl px-5 py-6 sm:py-7">
+        <div className="flex items-start gap-3 rounded-xl border border-ruby/15 bg-ruby/[0.035] px-5 py-4 sm:px-6">
+          <div className="mt-0.5">
+            <IconCheck className="h-5 w-5 text-ruby" />
+          </div>
+          <div className="flex-1 text-sm leading-relaxed text-anthracite/90">
+            <div className="font-semibold text-anthracite">Angebot erfolgreich angenommen.</div>
+            <div className="mt-1 text-anthracite/80">
+              Wir melden uns zeitnah um alles weitere zu besprechen. Sie müssen nichts weiteres mehr tun. In der Regel melden wir uns innerhalb weniger Minuten bei Ihnen.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setVisible(false)}
+            className="text-anthracite/40 hover:text-anthracite/70 text-xl leading-none"
+            aria-label="Hinweis schließen"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ----------------------------------------------------------------------- */
 /*  Page                                                                    */
 /* ----------------------------------------------------------------------- */
 
@@ -1597,6 +1637,9 @@ export default function Home() {
         }}
       />
       <Header />
+      <Suspense fallback={null}>
+        <OfferAcceptedBanner />
+      </Suspense>
       <Hero />
       <AudienceStrip />
       <ProblemSolution />
