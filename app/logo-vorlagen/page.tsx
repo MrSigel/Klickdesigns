@@ -35,7 +35,7 @@ export default function LogoVorlagenPage() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [supabase])
 
   const openDownload = (tpl: LogoTemplate, type: 'png' | 'svg') => {
     setSelectedTemplate(tpl)
