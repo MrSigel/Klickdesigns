@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
 type Customer = {
@@ -77,12 +78,13 @@ async function updateCustomer(formData: FormData) {
     return
   }
 
-  revalidatePath(`/admin/kunden/${id}`)
-  revalidatePath('/admin/kunden')
+  redirect(`/admin/kunden/${id}?success=updated`)
 }
 
-export default async function CustomerDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function CustomerDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<{ success?: string }> }) {
   const { id } = await params
+  const sp = await (searchParams || Promise.resolve({ success: undefined }))
+  const success = sp.success
   const customer = await getCustomer(id)
 
   if (!customer) {
@@ -103,6 +105,12 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
           <h1 className="font-display text-[28px] font-bold tracking-[-0.035em] text-anthracite">{customer.name}</h1>
           <p className="text-anthracite/70">{customer.email}</p>
         </div>
+
+      {success && (
+        <div className="mb-4 rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-700">
+          {success === 'updated' && 'Daten gespeichert.'}
+        </div>
+      )}
         <Link href="/admin/kunden" className="text-sm text-anthracite/60 hover:text-anthracite">← Zurück zur Liste</Link>
       </div>
 

@@ -85,7 +85,7 @@ async function sendInquiryEmail(formData: FormData) {
     await supabase.from('inquiries').update({ status: 'viewed' }).eq('id', id)
   }
 
-  revalidatePath(`/admin/anfragen/${id}`)
+  redirect(`/admin/anfragen/${id}?success=email`)
 }
 
 async function getCustomers() {
@@ -113,7 +113,7 @@ async function updateInquiry(formData: FormData) {
   if (error) {
     console.error(error)
   }
-  revalidatePath(`/admin/anfragen/${id}`)
+  redirect(`/admin/anfragen/${id}?success=updated`)
 }
 
 async function createCustomerFromInquiry(formData: FormData) {
@@ -128,8 +128,7 @@ async function createCustomerFromInquiry(formData: FormData) {
   const { data: existing } = await supabase.from('customers').select('id').eq('email', inquiry.email).maybeSingle()
   if (existing) {
     await supabase.from('inquiries').update({ customer_id: existing.id }).eq('id', inquiryId)
-    revalidatePath(`/admin/anfragen/${inquiryId}`)
-    return
+    redirect(`/admin/anfragen/${inquiryId}?success=customer`)
   }
 
   const { data: newCust, error } = await supabase.from('customers').insert({
@@ -144,11 +143,13 @@ async function createCustomerFromInquiry(formData: FormData) {
   if (error || !newCust) return
 
   await supabase.from('inquiries').update({ customer_id: newCust.id }).eq('id', inquiryId)
-  revalidatePath(`/admin/anfragen/${inquiryId}`)
+  redirect(`/admin/anfragen/${inquiryId}?success=customer`)
 }
 
-export default async function InquiryDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function InquiryDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<{ success?: string }> }) {
   const { id } = await params
+  const sp = await (searchParams || Promise.resolve({ success: undefined }))
+  const success = sp.success
   const inquiry = await getInquiry(id)
   const customers = await getCustomers()
 
@@ -164,6 +165,14 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
 
       <h1 className="font-display text-[28px] font-bold tracking-[-0.035em] text-anthracite mb-1">{inquiry.name}</h1>
       <p className="text-anthracite/70 mb-6">{inquiry.email} {inquiry.phone ? `· ${inquiry.phone}` : ''}</p>
+
+      {success && (
+        <div className="mb-4 rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-700">
+          {success === 'updated' && 'Änderungen gespeichert.'}
+          {success === 'customer' && 'Kunde erstellt/verknüpft.'}
+          {success === 'email' && 'E-Mail gesendet.'}
+        </div>
+      )}
 
       <div className="grid gap-8 md:grid-cols-2">
         <div className="space-y-6">
