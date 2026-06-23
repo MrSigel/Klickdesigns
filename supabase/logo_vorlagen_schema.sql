@@ -44,6 +44,7 @@ using (public.is_admin())
 with check (public.is_admin());
 
 -- Public can view active templates
+drop policy if exists "Public can view active logo templates" on public.logo_templates;
 create policy "Public can view active logo templates"
 on public.logo_templates
 for select
