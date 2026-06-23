@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef, type ReactNode, type FormEvent } from "react";
+import { useState, useRef, useEffect, type ReactNode, type FormEvent } from "react";
 import { submitInquiry } from "./actions/submit-inquiry";
+import { createClient } from "@/lib/supabase/client";
 import {
   motion,
   AnimatePresence,
@@ -1031,6 +1032,173 @@ function CompareSection() {
 }
 
 /* ----------------------------------------------------------------------- */
+/*  Ausgewählte Referenzen (Portfolio)                                     */
+/* ----------------------------------------------------------------------- */
+
+type PortfolioRef = {
+  id: string
+  title: string
+  description: string | null
+  category: string | null
+  media_type: 'image' | 'video' | 'pdf'
+  media_path: string
+  alt_text: string | null
+  external_url: string | null
+  link_label: string | null
+}
+
+function ReferencesSection() {
+  const [items, setItems] = useState<PortfolioRef[]>([])
+  const [loading, setLoading] = useState(true)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const load = async () => {
+      const { data, error } = await supabase
+        .from('portfolio_references')
+        .select('id,title,description,category,media_type,media_path,alt_text,external_url,link_label')
+        .eq('is_visible', true)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false })
+        .limit(24)
+      if (!error && data) setItems(data as PortfolioRef[])
+      setLoading(false)
+    }
+    load()
+  }, [supabase])
+
+  const getPublicUrl = (path: string) =>
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/portfolio-media/${path}`
+
+  const scroll = (direction: number) => {
+    const el = scrollRef.current
+    if (!el) return
+    const amount = Math.round(el.clientWidth * 0.82)
+    el.scrollBy({ left: direction * amount, behavior: 'smooth' })
+  }
+
+  if (!loading && items.length === 0) return null
+
+  return (
+    <section id="referenzen" className="border-b border-anthracite/10 bg-white px-5 py-28 sm:px-8 sm:py-32">
+      <div className="mx-auto max-w-7xl">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Eyebrow>Referenzen</Eyebrow>
+          <h2 className="mt-6 font-display text-[2.25rem] font-bold leading-[1.1] tracking-[-0.035em] text-anthracite sm:text-[3.2rem]">
+            Ausgewählte Referenzen
+          </h2>
+          <p className="mt-5 text-[16px] leading-relaxed text-anthracite/65">
+            Einblicke in Designs, Aufbereitungen und visuelle Arbeiten von Klickdesigns.
+          </p>
+        </Reveal>
+
+        {loading ? (
+          <div className="mt-12 text-center text-sm text-anthracite/50">Lade Referenzen…</div>
+        ) : (
+          <div className="relative mt-14">
+            <div className="absolute -left-2 top-1/2 z-10 hidden -translate-y-1/2 md:block">
+              <button
+                onClick={() => scroll(-1)}
+                aria-label="Vorherige"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-anthracite/15 bg-white text-anthracite shadow-sm transition hover:border-ruby/30"
+              >
+                ←
+              </button>
+            </div>
+            <div className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 md:block">
+              <button
+                onClick={() => scroll(1)}
+                aria-label="Nächste"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-anthracite/15 bg-white text-anthracite shadow-sm transition hover:border-ruby/30"
+              >
+                →
+              </button>
+            </div>
+
+            <div
+              ref={scrollRef}
+              className="flex gap-5 overflow-x-auto pb-6 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {items.map((ref, idx) => {
+                const url = getPublicUrl(ref.media_path)
+                const isExternal = !!ref.external_url
+                const CardContent = (
+                  <>
+                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-anthracite/10 bg-offwhite">
+                      {ref.media_type === 'image' && (
+                        <img
+                          src={url}
+                          alt={ref.alt_text || ref.title}
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 hover:scale-[1.025]"
+                          loading="lazy"
+                        />
+                      )}
+                      {ref.media_type === 'video' && (
+                        <video
+                          src={url}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          muted
+                          loop
+                          playsInline
+                          autoPlay
+                        />
+                      )}
+                      {ref.media_type === 'pdf' && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-anthracite/[0.03]">
+                          <div className="rounded border border-anthracite/15 bg-white px-5 py-2 text-[11px] font-semibold tracking-[0.1em] text-anthracite/70">PDF</div>
+                          <div className="mt-2 text-center text-[13px] text-anthracite/60 px-4 line-clamp-2">{ref.title}</div>
+                        </div>
+                      )}
+                      {ref.category && (
+                        <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-0.5 text-[10px] font-medium text-anthracite shadow-sm border border-anthracite/10">
+                          {ref.category}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4 px-1">
+                      <div className="font-semibold tracking-[-0.01em] text-anthracite text-[15px] leading-snug">{ref.title}</div>
+                      {ref.description && (
+                        <p className="mt-1.5 text-[13px] leading-snug text-anthracite/60 line-clamp-2">{ref.description}</p>
+                      )}
+                      {ref.link_label && isExternal && (
+                        <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-ruby">
+                          {ref.link_label} <span aria-hidden>↗</span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )
+
+                return (
+                  <Reveal key={ref.id} delay={Math.min(idx * 0.03, 0.2)} className="group w-[82%] min-w-[260px] max-w-[340px] flex-none snap-start md:w-[360px]">
+                    {isExternal ? (
+                      <a
+                        href={ref.external_url!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block rounded-xl border border-anthracite/10 bg-white p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-ruby/20 hover:shadow-[0_20px_50px_-20px_rgba(31,27,27,0.18)]"
+                      >
+                        {CardContent}
+                      </a>
+                    ) : (
+                      <div className="rounded-xl border border-anthracite/10 bg-white p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-ruby/20 hover:shadow-[0_20px_50px_-20px_rgba(31,27,27,0.18)]">
+                        {CardContent}
+                      </div>
+                    )}
+                  </Reveal>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+/* ----------------------------------------------------------------------- */
 /*  Kostenlose Logo-Vorlagen                                               */
 /* ----------------------------------------------------------------------- */
 
@@ -1581,6 +1749,7 @@ export default function Home() {
       <LogoSprint />
       <Packages />
       <CompareSection />
+      <ReferencesSection />
       <FreeTemplates />
       <Process />
       <QualityPromise />

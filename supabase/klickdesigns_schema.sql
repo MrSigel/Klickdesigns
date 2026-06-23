@@ -334,6 +334,34 @@ ALTER TABLE public.social_templates
   ADD CONSTRAINT social_templates_platform_check
   CHECK (platform IS NULL OR platform IN ('facebook', 'instagram', 'tiktok'));
 
+create table if not exists public.portfolio_references (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  slug text unique,
+  description text,
+  category text,
+  media_type text not null,
+  media_path text not null,
+  media_url text,
+  thumbnail_path text,
+  alt_text text,
+  external_url text,
+  link_label text,
+  is_visible boolean default true,
+  is_featured boolean default false,
+  sort_order integer default 0,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- Constraints for portfolio_references
+ALTER TABLE public.portfolio_references
+  DROP CONSTRAINT IF EXISTS portfolio_references_media_type_check;
+ALTER TABLE public.portfolio_references
+  ADD CONSTRAINT portfolio_references_media_type_check
+  CHECK (media_type IN ('image', 'video', 'pdf'));
+
 create table if not exists public.service_packages (
   id uuid primary key default gen_random_uuid(),
   slug text not null unique,
@@ -567,6 +595,12 @@ create index if not exists social_templates_created_at_idx on public.social_temp
 
 create index if not exists social_categories_name_idx on public.social_categories (name);
 
+create index if not exists portfolio_references_is_visible_idx on public.portfolio_references (is_visible);
+create index if not exists portfolio_references_is_featured_idx on public.portfolio_references (is_featured);
+create index if not exists portfolio_references_sort_order_idx on public.portfolio_references (sort_order);
+create index if not exists portfolio_references_created_at_idx on public.portfolio_references (created_at DESC);
+create index if not exists portfolio_references_slug_idx on public.portfolio_references (slug);
+
 -- =============================================================================
 -- Triggers
 -- =============================================================================
@@ -652,6 +686,11 @@ create trigger social_templates_set_updated_at
 before update on public.social_templates
 for each row execute function public.set_updated_at();
 
+drop trigger if exists portfolio_references_set_updated_at on public.portfolio_references;
+create trigger portfolio_references_set_updated_at
+before update on public.portfolio_references
+for each row execute function public.set_updated_at();
+
 -- =============================================================================
 -- RLS
 -- =============================================================================
@@ -672,6 +711,7 @@ alter table public.search_results enable row level security;
 alter table public.social_categories enable row level security;
 alter table public.social_posts enable row level security;
 alter table public.social_templates enable row level security;
+alter table public.portfolio_references enable row level security;
 
 create or replace function public.is_admin()
 returns boolean
@@ -707,6 +747,7 @@ revoke all on table public.search_results from anon;
 revoke all on table public.social_categories from anon;
 revoke all on table public.social_posts from anon;
 revoke all on table public.social_templates from anon;
+revoke all on table public.portfolio_references from anon;
 
 -- Allow public read for offers by token (for customer acceptance)
 grant select on table public.offers to anon;
@@ -728,6 +769,8 @@ grant select, insert, update, delete on table public.search_results to authentic
 grant select, insert, update, delete on table public.social_categories to authenticated;
 grant select, insert, update, delete on table public.social_posts to authenticated;
 grant select, insert, update, delete on table public.social_templates to authenticated;
+grant select on table public.portfolio_references to anon;
+grant select, insert, update, delete on table public.portfolio_references to authenticated;
 
 drop policy if exists "Admins manage profiles" on public.profiles;
 create policy "Admins manage profiles"
@@ -878,6 +921,20 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
+drop policy if exists "Admins manage portfolio_references" on public.portfolio_references;
+create policy "Admins manage portfolio_references"
+on public.portfolio_references
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+create policy "Public can view visible portfolio references"
+on public.portfolio_references
+for select
+to anon, authenticated
+using (is_visible = true);
+
 -- No policies are created for anon. In particular, anonymous visitors cannot
 -- select customer data or insert directly into customers/inquiries.
 
@@ -937,6 +994,36 @@ values
     4
   )
 on conflict (slug) do nothing;
+
+-- =============================================================================
+-- Storage preparation: portfolio-media
+-- =============================================================================
+-- Bucket "portfolio-media" must be created in Supabase Dashboard (Storage).
+-- Recommended: Create as PUBLIC bucket to allow direct public URLs for landing page display.
+--
+-- Public read access for portfolio assets (images/videos/pdfs) so visible references render on landing:
+--   - Use Supabase Dashboard > Storage > portfolio-media > Policies, or run equivalent SQL.
+--
+-- Example policies (for reference, apply via Dashboard or SQL editor):
+--
+--   CREATE POLICY "Public can read portfolio-media"
+--   ON storage.objects FOR SELECT
+--   TO anon, authenticated
+--   USING (bucket_id = 'portfolio-media');
+--
+--   CREATE POLICY "Admins upload to portfolio-media"
+--   ON storage.objects FOR INSERT
+--   TO authenticated
+--   WITH CHECK (bucket_id = 'portfolio-media' AND public.is_admin());
+--
+--   CREATE POLICY "Admins update/delete portfolio-media"
+--   ON storage.objects FOR UPDATE, DELETE
+--   TO authenticated
+--   USING (bucket_id = 'portfolio-media' AND public.is_admin());
+--
+-- Only portfolio files (no private customer uploads) belong here.
+-- Service role key is never used in client code.
+-- =============================================================================
 
 -- =============================================================================
 -- Notes
