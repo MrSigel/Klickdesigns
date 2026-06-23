@@ -191,13 +191,43 @@ create table if not exists public.project_files (
 
 create table if not exists public.activity_logs (
   id uuid primary key default gen_random_uuid(),
-  entity_type text not null,
+  area text not null,
+  entity_type text,
   entity_id uuid,
   action text not null,
   message text,
-  created_by uuid references auth.users(id) on delete set null,
-  created_at timestamptz not null default now()
+  metadata jsonb,
+  created_at timestamptz default now()
 );
+
+-- Upgrade for existing installations (keep backward compat for area)
+ALTER TABLE public.activity_logs ADD COLUMN IF NOT EXISTS area text;
+ALTER TABLE public.activity_logs ADD COLUMN IF NOT EXISTS metadata jsonb;
+
+-- Make nullable as per spec
+ALTER TABLE public.activity_logs ALTER COLUMN entity_type DROP NOT NULL;
+ALTER TABLE public.activity_logs ALTER COLUMN message DROP NOT NULL;
+
+-- Set default for area to avoid breaking inserts without it (will be 'system' for legacy)
+ALTER TABLE public.activity_logs ALTER COLUMN area SET DEFAULT 'system';
+-- Enforce not null after default
+ALTER TABLE public.activity_logs ALTER COLUMN area SET NOT NULL;
+
+-- Remove default for strict future inserts (new code must provide area)
+-- Keeping default during transition is safer; can be removed later.
+
+-- Constraints for possible values (area + action)
+ALTER TABLE public.activity_logs
+  DROP CONSTRAINT IF EXISTS activity_logs_area_check;
+ALTER TABLE public.activity_logs
+  ADD CONSTRAINT activity_logs_area_check
+  CHECK (area IN ('dashboard', 'anfragen', 'kunden', 'angebot', 'rechnung', 'akquise', 'suchen', 'social_media', 'referenzen', 'einstellungen', 'system'));
+
+ALTER TABLE public.activity_logs
+  DROP CONSTRAINT IF EXISTS activity_logs_action_check;
+ALTER TABLE public.activity_logs
+  ADD CONSTRAINT activity_logs_action_check
+  CHECK (action IN ('created', 'updated', 'deleted', 'archived', 'email_sent', 'pdf_created', 'status_changed', 'uploaded', 'converted', 'other'));
 
 create table if not exists public.acquisition_leads (
   id uuid primary key default gen_random_uuid(),
@@ -509,6 +539,13 @@ create index if not exists project_files_project_id_idx
 
 create index if not exists activity_logs_entity_idx
   on public.activity_logs (entity_type, entity_id);
+
+-- New indexes per spec
+create index if not exists activity_logs_area_idx on public.activity_logs (area);
+create index if not exists activity_logs_action_idx on public.activity_logs (action);
+create index if not exists activity_logs_created_at_idx on public.activity_logs (created_at DESC);
+create index if not exists activity_logs_entity_type_idx on public.activity_logs (entity_type);
+create index if not exists activity_logs_entity_id_idx on public.activity_logs (entity_id);
 
 create index if not exists offers_customer_id_idx
   on public.offers (customer_id);
@@ -1044,5 +1081,15 @@ on conflict (slug) do nothing;
 -- Project files:
 -- This table stores file metadata only. A later storage setup must define a
 -- private Supabase Storage bucket and separate storage.objects policies.
+
+-- =============================================================================
+-- activity_logs retention note
+-- =============================================================================
+-- Das Archiv (activity_logs) ist auf 12 Monate Aufbewahrung ausgelegt.
+-- Wichtige Änderungen und Aktivitäten sollen nachvollziehbar bleiben.
+-- Eine automatische Löschung älterer Einträge (z. B. per pg_cron oder Edge Function)
+-- kann später ergänzt werden.
+-- Jetzt noch keine automatische Löschung implementieren, falls kein Cron-System aktiv ist.
+-- =============================================================================
 
 commit;
