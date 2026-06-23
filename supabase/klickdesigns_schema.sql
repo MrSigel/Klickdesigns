@@ -392,6 +392,16 @@ ALTER TABLE public.portfolio_references
   ADD CONSTRAINT portfolio_references_media_type_check
   CHECK (media_type IN ('image', 'video', 'pdf'));
 
+create table if not exists public.settings (
+  id uuid primary key default gen_random_uuid(),
+  setting_key text unique not null,
+  setting_value jsonb,
+  description text,
+  is_public boolean default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 create table if not exists public.service_packages (
   id uuid primary key default gen_random_uuid(),
   slug text not null unique,
@@ -638,6 +648,12 @@ create index if not exists portfolio_references_sort_order_idx on public.portfol
 create index if not exists portfolio_references_created_at_idx on public.portfolio_references (created_at DESC);
 create index if not exists portfolio_references_slug_idx on public.portfolio_references (slug);
 
+create index if not exists settings_setting_key_idx on public.settings (setting_key);
+create index if not exists settings_is_public_idx on public.settings (is_public);
+
+create index if not exists profiles_email_idx on public.profiles (email);
+create index if not exists profiles_role_idx on public.profiles (role);
+
 -- =============================================================================
 -- Triggers
 -- =============================================================================
@@ -728,6 +744,11 @@ create trigger portfolio_references_set_updated_at
 before update on public.portfolio_references
 for each row execute function public.set_updated_at();
 
+drop trigger if exists settings_set_updated_at on public.settings;
+create trigger settings_set_updated_at
+before update on public.settings
+for each row execute function public.set_updated_at();
+
 -- =============================================================================
 -- RLS
 -- =============================================================================
@@ -749,6 +770,7 @@ alter table public.social_categories enable row level security;
 alter table public.social_posts enable row level security;
 alter table public.social_templates enable row level security;
 alter table public.portfolio_references enable row level security;
+alter table public.settings enable row level security;
 
 create or replace function public.is_admin()
 returns boolean
@@ -785,6 +807,7 @@ revoke all on table public.social_categories from anon;
 revoke all on table public.social_posts from anon;
 revoke all on table public.social_templates from anon;
 revoke all on table public.portfolio_references from anon;
+revoke all on table public.settings from anon;
 
 -- Allow public read for offers by token (for customer acceptance)
 grant select on table public.offers to anon;
@@ -807,7 +830,9 @@ grant select, insert, update, delete on table public.social_categories to authen
 grant select, insert, update, delete on table public.social_posts to authenticated;
 grant select, insert, update, delete on table public.social_templates to authenticated;
 grant select on table public.portfolio_references to anon;
+grant select on table public.settings to anon;
 grant select, insert, update, delete on table public.portfolio_references to authenticated;
+grant select, insert, update, delete on table public.settings to authenticated;
 
 drop policy if exists "Admins manage profiles" on public.profiles;
 create policy "Admins manage profiles"
@@ -971,6 +996,20 @@ on public.portfolio_references
 for select
 to anon, authenticated
 using (is_visible = true);
+
+drop policy if exists "Admins manage settings" on public.settings;
+create policy "Admins manage settings"
+on public.settings
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+create policy "Public can view public settings"
+on public.settings
+for select
+to anon, authenticated
+using (is_public = true);
 
 -- No policies are created for anon. In particular, anonymous visitors cannot
 -- select customer data or insert directly into customers/inquiries.
