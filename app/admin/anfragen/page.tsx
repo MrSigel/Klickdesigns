@@ -147,7 +147,7 @@ export default async function AdminAnfragen({ searchParams }: { searchParams: Pr
                       {statusOptions.find(s => s.value === inq.status)?.label || inq.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-anthracite/80">{inq.priority}</td>
+                  <td className="px-4 py-3 text-anthracite/80">{priorityOptions.find(p => p.value === inq.priority)?.label || inq.priority}</td>
                   <td className="px-4 py-3 text-anthracite/80">{inq.source || 'website'}</td>
                   <td className="px-4 py-3 text-xs text-anthracite/60">{new Date(inq.created_at).toLocaleDateString('de-DE')}</td>
                   <td className="px-4 py-3 text-right">
