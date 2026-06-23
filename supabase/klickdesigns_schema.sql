@@ -199,6 +199,45 @@ create table if not exists public.activity_logs (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.acquisition_leads (
+  id uuid primary key default gen_random_uuid(),
+  company_name text not null,
+  website_url text,
+  email text,
+  phone text,
+  social_url text,
+  source text,
+  detected_problem text,
+  recommended_service text,
+  status text not null default 'open',
+  do_not_contact boolean not null default false,
+  contacted_at timestamptz,
+  last_email_sent_at timestamptz,
+  converted_customer_id uuid references public.customers(id) on delete set null,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- Constraints for acquisition_leads
+ALTER TABLE public.acquisition_leads
+  DROP CONSTRAINT IF EXISTS acquisition_leads_status_check;
+ALTER TABLE public.acquisition_leads
+  ADD CONSTRAINT acquisition_leads_status_check
+  CHECK (status IN ('open', 'done', 'archived'));
+
+ALTER TABLE public.acquisition_leads
+  DROP CONSTRAINT IF EXISTS acquisition_leads_source_check;
+ALTER TABLE public.acquisition_leads
+  ADD CONSTRAINT acquisition_leads_source_check
+  CHECK (source IS NULL OR source IN ('website', 'facebook', 'instagram', 'social_media', 'lokal', 'empfehlung', 'google', 'verein', 'creator', 'shop', 'sonstiges'));
+
+ALTER TABLE public.acquisition_leads
+  DROP CONSTRAINT IF EXISTS acquisition_leads_recommended_service_check;
+ALTER TABLE public.acquisition_leads
+  ADD CONSTRAINT acquisition_leads_recommended_service_check
+  CHECK (recommended_service IS NULL OR recommended_service IN ('logo_sprint', 'logo_vectorization', 'design_finalization', 'business_presence', 'sticker_design', 'social_media_design', 'flyer_design', 'other'));
+
 create table if not exists public.service_packages (
   id uuid primary key default gen_random_uuid(),
   slug text not null unique,
@@ -395,6 +434,19 @@ create index if not exists invoices_status_idx
 create index if not exists invoice_items_invoice_id_idx
   on public.invoice_items (invoice_id);
 
+create index if not exists acquisition_leads_email_idx
+  on public.acquisition_leads (email);
+create index if not exists acquisition_leads_website_url_idx
+  on public.acquisition_leads (website_url);
+create index if not exists acquisition_leads_status_idx
+  on public.acquisition_leads (status);
+create index if not exists acquisition_leads_source_idx
+  on public.acquisition_leads (source);
+create index if not exists acquisition_leads_do_not_contact_idx
+  on public.acquisition_leads (do_not_contact);
+create index if not exists acquisition_leads_created_at_idx
+  on public.acquisition_leads (created_at DESC);
+
 -- =============================================================================
 -- Triggers
 -- =============================================================================
@@ -455,6 +507,11 @@ create trigger invoice_items_set_updated_at
 before update on public.invoice_items
 for each row execute function public.set_updated_at();
 
+drop trigger if exists acquisition_leads_set_updated_at on public.acquisition_leads;
+create trigger acquisition_leads_set_updated_at
+before update on public.acquisition_leads
+for each row execute function public.set_updated_at();
+
 -- =============================================================================
 -- RLS
 -- =============================================================================
@@ -470,6 +527,7 @@ alter table public.offers enable row level security;
 alter table public.offer_items enable row level security;
 alter table public.invoices enable row level security;
 alter table public.invoice_items enable row level security;
+alter table public.acquisition_leads enable row level security;
 
 create or replace function public.is_admin()
 returns boolean
@@ -500,6 +558,7 @@ revoke all on table public.offers from anon;
 revoke all on table public.offer_items from anon;
 revoke all on table public.invoices from anon;
 revoke all on table public.invoice_items from anon;
+revoke all on table public.acquisition_leads from anon;
 
 -- Allow public read for offers by token (for customer acceptance)
 grant select on table public.offers to anon;
@@ -516,6 +575,7 @@ grant select, insert, update, delete on table public.offers to authenticated;
 grant select, insert, update, delete on table public.offer_items to authenticated;
 grant select, insert, update, delete on table public.invoices to authenticated;
 grant select, insert, update, delete on table public.invoice_items to authenticated;
+grant select, insert, update, delete on table public.acquisition_leads to authenticated;
 
 drop policy if exists "Admins manage profiles" on public.profiles;
 create policy "Admins manage profiles"
@@ -621,6 +681,14 @@ with check (public.is_admin());
 drop policy if exists "Admins manage invoice_items" on public.invoice_items;
 create policy "Admins manage invoice_items"
 on public.invoice_items
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins manage acquisition_leads" on public.acquisition_leads;
+create policy "Admins manage acquisition_leads"
+on public.acquisition_leads
 for all
 to authenticated
 using (public.is_admin())
