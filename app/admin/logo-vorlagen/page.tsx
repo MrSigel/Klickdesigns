@@ -10,6 +10,8 @@ type LogoTemplate = {
   png_path: string
   svg_path: string
   is_active: boolean
+  category?: string
+  sort_order?: number
   created_at: string
 }
 
@@ -18,7 +20,7 @@ export default function AdminLogoVorlagen() {
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<LogoTemplate | null>(null)
-  const [form, setForm] = useState({ title: '', description: '' })
+  const [form, setForm] = useState({ title: '', description: '', category: 'other' })
   const [pendingPng, setPendingPng] = useState<File | null>(null)
   const [pendingSvg, setPendingSvg] = useState<File | null>(null)
   const [pngPreview, setPngPreview] = useState<string | null>(null)
@@ -43,7 +45,7 @@ export default function AdminLogoVorlagen() {
 
   const openNew = () => {
     setEditing(null)
-    setForm({ title: '', description: '' })
+    setForm({ title: '', description: '', category: 'other' })
     setPendingPng(null)
     setPendingSvg(null)
     setPngPreview(null)
@@ -54,7 +56,7 @@ export default function AdminLogoVorlagen() {
 
   const openEdit = (tpl: LogoTemplate) => {
     setEditing(tpl)
-    setForm({ title: tpl.title, description: tpl.description || '' })
+    setForm({ title: tpl.title, description: tpl.description || '', category: tpl.category || 'other' })
     setPendingPng(null)
     setPendingSvg(null)
     setPngPreview(null)
@@ -155,6 +157,7 @@ export default function AdminLogoVorlagen() {
       const payload = {
         title: form.title.trim(),
         description: form.description.trim() || null,
+        category: form.category || 'other',
         png_path: pngPath,
         svg_path: svgPath,
       }
@@ -241,6 +244,7 @@ export default function AdminLogoVorlagen() {
                 />
               </div>
               <div className="font-semibold text-anthracite">{tpl.title}</div>
+              <div className="mt-0.5 text-[10px] uppercase tracking-widest text-anthracite/50">{(tpl.category || 'other').toUpperCase()}</div>
               {tpl.description && <p className="text-sm text-anthracite/70 mt-1 line-clamp-2">{tpl.description}</p>}
               <div className="mt-3 flex items-center justify-between text-xs">
                 <button
@@ -287,6 +291,27 @@ export default function AdminLogoVorlagen() {
                   rows={2}
                   className="w-full rounded-md border border-anthracite/15 px-3 py-2 focus:border-ruby/40 outline-none"
                 />
+              </div>
+
+              <div>
+                <label className="block text-anthracite/70 text-xs mb-1">Kategorie</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="w-full rounded-md border border-anthracite/15 px-3 py-2 focus:border-ruby/40 outline-none"
+                >
+                  <option value="business">Business</option>
+                  <option value="creator">Creator</option>
+                  <option value="gaming">Gaming</option>
+                  <option value="streetwear">Streetwear</option>
+                  <option value="verein">Verein</option>
+                  <option value="handwerk">Handwerk</option>
+                  <option value="beauty">Beauty</option>
+                  <option value="food">Food</option>
+                  <option value="fitness">Fitness</option>
+                  <option value="minimal">Minimal</option>
+                  <option value="other">Sonstiges</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

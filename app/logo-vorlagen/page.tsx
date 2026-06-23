@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import Link from 'next/link'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 
@@ -12,7 +11,23 @@ type LogoTemplate = {
   description: string | null
   png_path: string
   svg_path: string
+  category?: string
 }
+
+const categoryOptions = [
+  { value: 'all', label: 'Alle' },
+  { value: 'business', label: 'Business' },
+  { value: 'creator', label: 'Creator' },
+  { value: 'gaming', label: 'Gaming' },
+  { value: 'streetwear', label: 'Streetwear' },
+  { value: 'verein', label: 'Verein' },
+  { value: 'handwerk', label: 'Handwerk' },
+  { value: 'beauty', label: 'Beauty' },
+  { value: 'food', label: 'Food' },
+  { value: 'fitness', label: 'Fitness' },
+  { value: 'minimal', label: 'Minimal' },
+  { value: 'other', label: 'Sonstiges' },
+]
 
 export default function LogoVorlagenPage() {
   const [templates, setTemplates] = useState<LogoTemplate[]>([])
@@ -23,6 +38,7 @@ export default function LogoVorlagenPage() {
   const [form, setForm] = useState({ email: '', website: '', first_name: '', last_name: '' })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [activeFilter, setActiveFilter] = useState<'all' | string>('all')
 
   const supabase = createClient()
 
@@ -30,14 +46,31 @@ export default function LogoVorlagenPage() {
     const load = async () => {
       const { data } = await supabase
         .from('logo_templates')
-        .select('id, title, description, png_path, svg_path')
+        .select('id, title, description, png_path, svg_path, category')
         .eq('is_active', true)
+        .order('sort_order', { ascending: true })
         .order('created_at', { ascending: false })
       setTemplates((data || []) as LogoTemplate[])
       setLoading(false)
     }
     load()
   }, [supabase])
+
+  // Support initial filter from ?kategorie= param (shareable links)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const k = params.get('kategorie')
+      if (k) {
+        const match = categoryOptions.find((c) => c.value === k)
+        if (match) {
+          setActiveFilter(match.value)
+        } else if (k === 'all') {
+          setActiveFilter('all')
+        }
+      }
+    }
+  }, [])
 
   const openDownload = (tpl: LogoTemplate, type: 'png' | 'svg') => {
     setSelectedTemplate(tpl)
@@ -79,7 +112,7 @@ export default function LogoVorlagenPage() {
         project_name: selectedTemplate.title,
         service_type: 'other',
         existing_material: null,
-        message: `Download Logo-Vorlage: ${selectedTemplate.title} (${selectedType.toUpperCase()})` + (form.website ? ` | Website: ${form.website}` : ''),
+        message: `Download Logo-Vorlage: ${selectedTemplate.title} (${selectedType.toUpperCase()})` + (form.website ? ` | Website: ${form.website}` : '') + ` | Kategorie: ${selectedTemplate.category || 'other'}`,
         status: 'new',
         priority: 'normal',
         source: 'logo_vorlagen',
@@ -132,6 +165,26 @@ export default function LogoVorlagenPage() {
           </p>
         </div>
 
+        {/* Category Filter - modern pills, no page reload, supports ?kategorie= */}
+        <div className="mb-8 flex flex-wrap justify-center gap-2">
+          {categoryOptions.map((cat) => {
+            const isActive = activeFilter === cat.value
+            return (
+              <button
+                key={cat.value}
+                onClick={() => setActiveFilter(cat.value)}
+                className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all border ${
+                  isActive
+                    ? 'bg-ruby text-offwhite border-ruby shadow-sm'
+                    : 'border-anthracite/15 text-anthracite/70 hover:border-ruby/30 hover:text-anthracite bg-white'
+                }`}
+              >
+                {cat.label}
+              </button>
+            )
+          })}
+        </div>
+
         {loading ? (
           <div className="py-20 text-center text-anthracite/50">Lade Vorlagen…</div>
         ) : templates.length === 0 ? (
@@ -139,42 +192,52 @@ export default function LogoVorlagenPage() {
             <p className="text-anthracite/70">Aktuell sind noch keine Vorlagen verfügbar.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {templates.map((tpl) => {
-              const pngUrl = getPublicUrl(tpl.png_path)
+          (() => {
+            const filtered = activeFilter === 'all'
+              ? templates
+              : templates.filter((t) => (t.category || 'other') === activeFilter)
+            if (filtered.length === 0) {
               return (
-                <div key={tpl.id} className="rounded-xl border border-anthracite/10 bg-white overflow-hidden flex flex-col">
-                  <div className="bg-offwhite p-6 flex items-center justify-center h-56">
-                    <img 
-                      src={pngUrl} 
-                      alt={tpl.title} 
-                      className="max-h-44 object-contain" 
-                    />
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col">
-                    <div className="font-semibold text-lg text-anthracite">{tpl.title}</div>
-                    {tpl.description && (
-                      <p className="mt-2 text-sm text-anthracite/70 line-clamp-3 flex-1">{tpl.description}</p>
-                    )}
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => openDownload(tpl, 'png')}
-                        className="rounded-md border border-anthracite/15 py-2 text-sm font-medium hover:bg-anthracite/5 transition"
-                      >
-                        PNG herunterladen
-                      </button>
-                      <button
-                        onClick={() => openDownload(tpl, 'svg')}
-                        className="rounded-md bg-ruby text-offwhite py-2 text-sm font-semibold hover:bg-ruby/90 transition"
-                      >
-                        SVG herunterladen
-                      </button>
-                    </div>
-                  </div>
+                <div className="rounded-xl border border-anthracite/10 bg-white p-12 text-center">
+                  <p className="text-anthracite/70">Für diese Kategorie werden gerade neue Logo-Vorlagen vorbereitet.</p>
                 </div>
               )
-            })}
-          </div>
+            }
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filtered.map((tpl) => {
+                  const pngUrl = getPublicUrl(tpl.png_path)
+                  return (
+                    <div key={tpl.id} className="rounded-xl border border-anthracite/10 bg-white overflow-hidden flex flex-col">
+                      <div className="bg-offwhite p-6 flex items-center justify-center h-56">
+                        <img 
+                          src={pngUrl} 
+                          alt="Logo-Vorlage" 
+                          className="max-h-44 object-contain" 
+                        />
+                      </div>
+                      <div className="p-5 flex-1 flex flex-col">
+                        <div className="mt-auto grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => openDownload(tpl, 'png')}
+                            className="rounded-md border border-anthracite/15 py-2 text-sm font-medium hover:bg-anthracite/5 transition"
+                          >
+                            PNG herunterladen
+                          </button>
+                          <button
+                            onClick={() => openDownload(tpl, 'svg')}
+                            className="rounded-md bg-ruby text-offwhite py-2 text-sm font-semibold hover:bg-ruby/90 transition"
+                          >
+                            SVG herunterladen
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()
         )}
       </main>
 
@@ -186,7 +249,7 @@ export default function LogoVorlagenPage() {
           <div className="w-full max-w-md rounded-2xl border border-anthracite/10 bg-white p-6 shadow-xl">
             <h3 className="font-display text-xl font-semibold mb-1">Download starten</h3>
             <p className="text-sm text-anthracite/70 mb-4">
-              {selectedTemplate.title} – {selectedType.toUpperCase()}
+              Logo-Vorlage – {selectedType.toUpperCase()}
             </p>
 
             {error && <div className="mb-4 rounded bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">{error}</div>}
