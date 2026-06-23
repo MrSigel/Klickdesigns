@@ -31,7 +31,7 @@ async function getOffer(id: string) {
     .from('offers')
     .select(`
       *,
-      customer:customers (id, name, email),
+      customer:customers (id, name, email, phone, company),
       items:offer_items (id, title, description, quantity, unit_price_cents, total_cents)
     `)
     .eq('id', id)
