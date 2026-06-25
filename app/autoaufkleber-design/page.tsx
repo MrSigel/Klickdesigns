@@ -21,6 +21,18 @@ export default function AutoaufkleberDesignPage() {
 
         <ProductFulfillmentSection className="mt-12" />
 
+        <div className="mt-10 rounded-xl border border-anthracite/10 bg-white p-6">
+          <h2 className="text-xl font-semibold text-anthracite">Passende Lösungen</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <a href="/loesungen/handwerker-logo-optimieren" className="rounded-lg border border-anthracite/10 bg-offwhite/70 p-4 text-sm font-semibold text-ruby hover:border-ruby/30">
+              Handwerker Logo optimieren
+            </a>
+            <a href="/loesungen/vektorgrafik-fuer-textildruck" className="rounded-lg border border-anthracite/10 bg-offwhite/70 p-4 text-sm font-semibold text-ruby hover:border-ruby/30">
+              Vektorgrafik für Textildruck
+            </a>
+          </div>
+        </div>
+
         <div className="mt-10 text-center">
           <p className="mb-3 text-sm text-anthracite/70">Gestaltung und Vorbereitung für Autoaufkleber auf Anfrage, inklusive Produktumsetzung.</p>
           <a href="/kontakt" className="rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Dateien für Aufkleber anfragen</a>

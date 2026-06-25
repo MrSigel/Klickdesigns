@@ -72,6 +72,18 @@ export default function LogoVektorisierenPage() {
 
         <ProductFulfillmentSection className="mt-12" />
 
+        <div className="mt-12 rounded-xl border border-anthracite/10 bg-white p-6">
+          <h2 className="text-xl font-semibold text-anthracite">Passende Lösungen</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <a href="/loesungen/logo-vektorisieren-fuer-vereine" className="rounded-lg border border-anthracite/10 bg-offwhite/70 p-4 text-sm font-semibold text-ruby hover:border-ruby/30">
+              Logo vektorisieren für Vereine
+            </a>
+            <a href="/loesungen/vektorgrafik-fuer-textildruck" className="rounded-lg border border-anthracite/10 bg-offwhite/70 p-4 text-sm font-semibold text-ruby hover:border-ruby/30">
+              Vektorgrafik für Textildruck
+            </a>
+          </div>
+        </div>
+
         <div className="mt-12 text-center">
           <p className="mb-4 text-sm text-anthracite/70">Auf Anfrage kann das vektorisierte Logo für T-Shirts, Pullover, Sticker oder Autoaufkleber vorbereitet und umgesetzt werden.</p>
           <a href="/kontakt" className="inline-flex rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Logo jetzt vektorisieren lassen</a>

@@ -118,6 +118,18 @@ export default async function LogoVorlagenPage({ searchParams }: { searchParams:
             })}
           </div>
         )}
+
+        <section className="mt-12 rounded-xl border border-anthracite/10 bg-white p-6">
+          <h2 className="text-xl font-semibold text-anthracite">Passende Vorlagen-Themen</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <a href="/vorlagen/fussball-logo-vorlage-kostenlos-svg" className="rounded-lg border border-anthracite/10 bg-offwhite/70 p-4 text-sm font-semibold text-ruby hover:border-ruby/30">
+              Fußball Logo Vorlage kostenlos SVG
+            </a>
+            <a href="/vorlagen/handwerk-logo-template-gratis" className="rounded-lg border border-anthracite/10 bg-offwhite/70 p-4 text-sm font-semibold text-ruby hover:border-ruby/30">
+              Handwerk Logo Template gratis
+            </a>
+          </div>
+        </section>
       </main>
 
       <Footer />
