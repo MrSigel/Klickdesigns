@@ -62,6 +62,7 @@ export default function LogoSprintPage() {
         </div>
 
         <div className="mt-12 text-center">
+          <p className="mb-4 text-sm text-anthracite/70">Nach dem Sprint kann das Logo auf Anfrage für Sticker, Kleidung oder andere Produkte vorbereitet werden.</p>
           <a href="/kontakt" className="inline-flex rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Logo-Sprint starten</a>
         </div>
       </main>

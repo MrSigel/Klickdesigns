@@ -31,7 +31,10 @@ export default function LogoDesignPage() {
           </div>
         </div>
 
-        <div className="mt-10 text-center"><a href="/kontakt" className="rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Logo-Projekt starten</a></div>
+        <div className="mt-10 text-center">
+          <p className="mb-3 text-sm text-anthracite/70">Logo-Design und Vorbereitung für Produktumsetzung (T-Shirts, Sticker etc.) auf Anfrage.</p>
+          <a href="/kontakt" className="rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Logo-Projekt starten</a>
+        </div>
       </main>
       <Footer />
     </>

@@ -1254,6 +1254,7 @@ function FreeTemplates() {
 
         <div className="mt-10 text-center text-sm text-anthracite/70 max-w-2xl mx-auto">
           Klickdesigns sitzt in Castrop-Rauxel und unterstützt Unternehmen, Vereine, Selbstständige und Creator im Ruhrgebiet, in NRW und deutschlandweit bei professionellen Logos, Flyern, Social-Media-Grafiken und der Aufbereitung bestehender Designs.
+          Auf Anfrage unterstützt Klickdesigns auch bei der Umsetzung auf T-Shirts, Pullovern, Stickern, Autoaufklebern oder Flyern.
         </div>
       </div>
     </section>

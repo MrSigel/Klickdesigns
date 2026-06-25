@@ -21,7 +21,10 @@ export default function FlyerDesignPage() {
 
         <ProductFulfillmentSection className="mt-12" />
 
-        <div className="mt-10 text-center"><a href="/kontakt" className="rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Flyer-Design anfragen</a></div>
+        <div className="mt-10 text-center">
+          <p className="mb-3 text-sm text-anthracite/70">Flyer gestalten und für Druck auf Anfrage vorbereiten, inkl. Produktumsetzung.</p>
+          <a href="/kontakt" className="rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Flyer-Design anfragen</a>
+        </div>
       </main>
       <Footer />
     </>

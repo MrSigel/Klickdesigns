@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: "Kostenlose Logo-Vorlagen | Klickdesigns",
-  description: "Lade kostenlose Logo-Vorlagen als PNG und SVG herunter. Perfekt für Web, Druck, Sticker und Kleidung. Einfach E-Mail angeben und sofort starten.",
+  description: "Kostenlose Logo-Vorlagen als PNG und SVG herunterladen. Einstieg für Web, Druck, Sticker, Kleidung und Social Media. Einfach E-Mail angeben und starten.",
   openGraph: {
     title: "Kostenlose Logo-Vorlagen | Klickdesigns",
-    description: "Professionelle kostenlose Logo-Vorlagen zum Download. PNG und SVG – sofort verfügbar nach kurzer Registrierung per E-Mail.",
+    description: "Professionelle kostenlose Logo-Vorlagen zum Download. PNG und SVG für Web, Print und Merchandise.",
     images: [{ url: "/brand/klickdesigns-logo.svg" }],
   },
 };

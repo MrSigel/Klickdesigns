@@ -73,6 +73,7 @@ export default function LogoVektorisierenPage() {
         <ProductFulfillmentSection className="mt-12" />
 
         <div className="mt-12 text-center">
+          <p className="mb-4 text-sm text-anthracite/70">Auf Anfrage kann das vektorisierte Logo für T-Shirts, Pullover, Sticker oder Autoaufkleber vorbereitet und umgesetzt werden.</p>
           <a href="/kontakt" className="inline-flex rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Logo jetzt vektorisieren lassen</a>
         </div>
       </main>
