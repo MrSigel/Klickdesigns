@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ProductFulfillmentFields from '../components/ProductFulfillmentFields';
+import ProductFulfillmentSection from '../components/ProductFulfillmentSection';
 import { submitInquiry } from '../actions/submit-inquiry';
 
 export default function KontaktPage() {
@@ -46,6 +48,8 @@ export default function KontaktPage() {
           </p>
         </div>
 
+        <ProductFulfillmentSection className="mb-10" />
+
         {submitted ? (
           <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
             <h2 className="text-xl font-semibold text-green-800">Vielen Dank für Ihre Anfrage!</h2>
@@ -86,6 +90,8 @@ export default function KontaktPage() {
               <label className="block text-sm font-medium text-anthracite mb-1">Kurze Beschreibung Ihres Projekts *</label>
               <textarea name="message" required rows={5} className="w-full rounded-md border border-anthracite/15 px-3 py-2 text-sm focus:border-ruby/40" placeholder="Beschreiben Sie kurz, was Sie benötigen..."></textarea>
             </div>
+
+            <ProductFulfillmentFields />
 
             <div>
               <label className="block text-sm font-medium text-anthracite mb-1">Logo / Entwurf / Dateien (optional)</label>

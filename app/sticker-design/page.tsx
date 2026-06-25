@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ProductFulfillmentSection from '../components/ProductFulfillmentSection';
 
 export const metadata = {
   title: 'Sticker-Design – Motive und Dateien für Sticker, Events und Marken | Klickdesigns',
@@ -27,6 +28,8 @@ export default function StickerDesignPage() {
             <li>• Logo- oder Motiv-Aufbereitung</li>
           </ul>
         </div>
+
+        <ProductFulfillmentSection className="mt-12" />
 
         <div className="mt-10 text-center"><a href="/kontakt" className="rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Sticker-Design anfragen</a></div>
       </main>

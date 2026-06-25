@@ -81,6 +81,13 @@ create table if not exists public.inquiries (
   internal_notes text,
   consent_privacy boolean default false,
   confirmation_email_sent_at timestamptz,
+  product_fulfillment_requested boolean default false,
+  product_types text[],
+  product_quantity text,
+  product_target_group text[],
+  product_color text,
+  product_position text[],
+  product_notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint inquiries_service_type_check check (
@@ -645,6 +652,13 @@ ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS source text DEFAULT 'websi
 ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS consent_privacy boolean DEFAULT false;
 ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS confirmation_email_sent_at timestamptz;
 ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS uploaded_files jsonb DEFAULT '[]'::jsonb;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS product_fulfillment_requested boolean DEFAULT false;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS product_types text[];
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS product_quantity text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS product_target_group text[];
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS product_color text;
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS product_position text[];
+ALTER TABLE public.inquiries ADD COLUMN IF NOT EXISTS product_notes text;
 
 ALTER TABLE public.offers ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'draft';
 
@@ -686,6 +700,8 @@ create index if not exists inquiries_priority_idx
   on public.inquiries (priority);
 create index if not exists inquiries_customer_id_idx
   on public.inquiries (customer_id);
+create index if not exists inquiries_product_fulfillment_requested_idx
+  on public.inquiries (product_fulfillment_requested);
 
 create index if not exists customers_email_idx
   on public.customers (email);

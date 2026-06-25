@@ -15,6 +15,8 @@ import {
 } from "framer-motion";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ProductFulfillmentFields from "./components/ProductFulfillmentFields";
+import ProductFulfillmentSection from "./components/ProductFulfillmentSection";
 
 const professionalServiceJsonLd = {
   "@context": "https://schema.org",
@@ -854,6 +856,7 @@ function Packages() {
                   </ul>
                 )}
 
+
                 <a
                   href="#kontakt"
                   className={`group mt-8 inline-flex items-center justify-center gap-2 rounded-md px-5 py-3.5 text-[14px] font-semibold shadow-[0_10px_24px_-16px_rgba(31,27,27,0.6)] transition-all duration-300 hover:-translate-y-1 ${
@@ -869,6 +872,24 @@ function Packages() {
             </Reveal>
           ))}
         </div>
+
+        <Reveal delay={0.08} className="mt-8">
+          <div className="rounded-xl border border-ruby/15 bg-ruby/[0.035] p-6 sm:p-7">
+            <p className="text-[14px] font-semibold text-ruby">
+              Optional: Druck &amp; Produktumsetzung
+            </p>
+            <p className="mt-2 max-w-4xl text-[14px] leading-relaxed text-anthracite/68">
+              T-Shirts, Pullover, Sticker, Autoaufkleber, Flyer und weitere
+              Produkte können auf Anfrage zusätzlich angeboten werden. Menge,
+              Ausführung, Größen, Farben und Designposition werden individuell
+              abgestimmt.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.12} className="mt-10">
+          <ProductFulfillmentSection />
+        </Reveal>
       </div>
     </section>
   );
@@ -1580,6 +1601,8 @@ function Contact() {
                   className="briefing-input mt-3 min-h-[150px] w-full resize-none"
                 />
               </label>
+
+              <ProductFulfillmentFields />
 
               <label className="mt-7 block">
                 <span className="text-[14px] font-semibold text-anthracite/75">

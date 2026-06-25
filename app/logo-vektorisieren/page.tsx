@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ProductFulfillmentSection from '../components/ProductFulfillmentSection';
 import { deliveryTimes } from '../site-config';
 
 export const metadata = {
@@ -68,6 +69,8 @@ export default function LogoVektorisierenPage() {
           <details className="border-b py-3"><summary className="cursor-pointer font-medium">Ist die Datei für Druck geeignet?</summary><p className="mt-2 text-sm text-anthracite/70">Ja, SVG und PNG sind für die meisten Druckverfahren nutzbar.</p></details>
           <details className="border-b py-3"><summary className="cursor-pointer font-medium">Was ist nicht enthalten?</summary><p className="mt-2 text-sm text-anthracite/70">Keine Markenrecherche, keine rechtliche Prüfung, keine komplexen Illustrationen.</p></details>
         </div>
+
+        <ProductFulfillmentSection className="mt-12" />
 
         <div className="mt-12 text-center">
           <a href="/kontakt" className="inline-flex rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Logo jetzt vektorisieren lassen</a>

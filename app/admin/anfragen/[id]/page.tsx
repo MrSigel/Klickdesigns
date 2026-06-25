@@ -19,6 +19,13 @@ type Inquiry = {
   internal_notes: string | null
   customer_id: string | null
   created_at: string
+  product_fulfillment_requested: boolean | null
+  product_types: string[] | null
+  product_quantity: string | null
+  product_target_group: string[] | null
+  product_color: string | null
+  product_position: string[] | null
+  product_notes: string | null
   uploaded_files?: Array<{ name: string; path: string; size?: number; type?: string }> | null
 }
 
@@ -26,6 +33,10 @@ type Customer = {
   id: string
   name: string
   email: string
+}
+function formatProductValue(value: string[] | string | null | undefined) {
+  if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '—'
+  return value || '—'
 }
 
 async function getInquiry(id: string) {
@@ -186,6 +197,24 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
               <div><dt className="text-anthracite/60">Quelle</dt><dd>{inquiry.source || 'website'}</dd></div>
               <div><dt className="text-anthracite/60">Eingegangen</dt><dd>{new Date(inquiry.created_at).toLocaleString('de-DE')}</dd></div>
             </dl>
+          </div>
+
+
+          <div className="rounded-xl border border-anthracite/10 bg-white p-6">
+            <h2 className="font-semibold mb-4">Produktumsetzung</h2>
+            {inquiry.product_fulfillment_requested ? (
+              <dl className="space-y-3 text-sm">
+                <div><dt className="text-anthracite/60">Produktumsetzung gewünscht</dt><dd>Ja</dd></div>
+                <div><dt className="text-anthracite/60">Produktarten</dt><dd>{formatProductValue(inquiry.product_types)}</dd></div>
+                <div><dt className="text-anthracite/60">Menge</dt><dd>{formatProductValue(inquiry.product_quantity)}</dd></div>
+                <div><dt className="text-anthracite/60">Größen / Ausführung</dt><dd>{formatProductValue(inquiry.product_target_group)}</dd></div>
+                <div><dt className="text-anthracite/60">Farbe</dt><dd>{formatProductValue(inquiry.product_color)}</dd></div>
+                <div><dt className="text-anthracite/60">Designposition</dt><dd>{formatProductValue(inquiry.product_position)}</dd></div>
+                <div><dt className="text-anthracite/60">Zusätzliche Hinweise</dt><dd className="whitespace-pre-wrap">{formatProductValue(inquiry.product_notes)}</dd></div>
+              </dl>
+            ) : (
+              <p className="text-sm text-anthracite/55">Nicht angefragt</p>
+            )}
           </div>
 
           <div className="rounded-xl border border-anthracite/10 bg-white p-6">

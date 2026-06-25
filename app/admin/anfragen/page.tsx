@@ -15,6 +15,7 @@ type Inquiry = {
   priority: string
   source: string | null
   created_at: string
+  product_fulfillment_requested: boolean | null
   uploaded_files?: Array<{ name: string; path: string; size?: number; type?: string }> | null
 }
 
@@ -127,6 +128,7 @@ export default async function AdminAnfragen({ searchParams }: { searchParams: Pr
               <tr className="text-left text-anthracite/70">
                 <th className="px-4 py-3">Name / E-Mail</th>
                 <th className="px-4 py-3">Leistung</th>
+                <th className="px-4 py-3">Produktumsetzung</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Priorität</th>
                 <th className="px-4 py-3">Quelle</th>
@@ -143,6 +145,11 @@ export default async function AdminAnfragen({ searchParams }: { searchParams: Pr
                     {inq.phone && <div className="text-xs text-anthracite/60">{inq.phone}</div>}
                   </td>
                   <td className="px-4 py-3 text-anthracite/80">{inq.service_type || '—'}</td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-block rounded px-2 py-0.5 text-xs ${inq.product_fulfillment_requested ? 'bg-ruby/10 text-ruby' : 'bg-anthracite/10 text-anthracite/60'}`}>
+                      {inq.product_fulfillment_requested ? 'Ja' : 'Nicht angefragt'}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`inline-block px-2 py-0.5 text-xs rounded ${inq.status === 'new' ? 'bg-ruby/10 text-ruby' : 'bg-anthracite/10'}`}>
                       {statusOptions.find(s => s.value === inq.status)?.label || inq.status}

@@ -3,15 +3,70 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+function cleanText(value: FormDataEntryValue | null) {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
+function cleanList(formData: FormData, key: string) {
+  const values = formData
+    .getAll(key)
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => value.trim())
+    .filter(Boolean)
+
+  return values.length > 0 ? values : null
+}
+
+function normalizeServiceType(value: string | null) {
+  if (!value) return null
+  const map: Record<string, string> = {
+    'Logo-Sprint': 'logo_sprint',
+    'Logo-Vektorisierung': 'logo_vectorization',
+    'Design-Finalisierung': 'design_finalization',
+    'Business-Auftritt': 'business_presence',
+    'Sticker-Design': 'sticker_design',
+    'Social-Media-Design': 'social_media_design',
+    'Flyer-Design': 'flyer_design',
+    Sonstiges: 'other',
+  }
+
+  return map[value] || value
+}
+
+function normalizeExistingMaterial(value: string | null) {
+  if (!value) return null
+  const map: Record<string, string> = {
+    Logo: 'logo',
+    'PNG/JPG': 'png_jpg',
+    Screenshot: 'screenshot',
+    Flyer: 'flyer',
+    'Social-Media-Design': 'social_media_design',
+    'Noch nichts': 'nothing',
+    Sonstiges: 'other',
+  }
+
+  return map[value] || value
+}
+
 export async function submitInquiry(formData: FormData) {
   const supabase = await createClient()
 
-  const name = formData.get('name') as string
-  const email = formData.get('email') as string
-  const company = formData.get('company') as string || null
-  const service = formData.get('service') as string || null
-  const have = formData.get('have') as string || null
-  const message = formData.get('message') as string
+  const name = cleanText(formData.get('name'))
+  const email = cleanText(formData.get('email'))
+  const phone = cleanText(formData.get('phone'))
+  const company = cleanText(formData.get('company'))
+  const service = normalizeServiceType(cleanText(formData.get('service')))
+  const have = normalizeExistingMaterial(cleanText(formData.get('have')))
+  const message = cleanText(formData.get('message'))
+  const productFulfillmentRequested = formData.get('product_fulfillment_requested') === 'true'
+  const productTypes = productFulfillmentRequested ? cleanList(formData, 'product_types') : null
+  const productQuantity = productFulfillmentRequested ? cleanText(formData.get('product_quantity')) : null
+  const productTargetGroup = productFulfillmentRequested ? cleanList(formData, 'product_target_group') : null
+  const productColor = productFulfillmentRequested ? cleanText(formData.get('product_color')) : null
+  const productPosition = productFulfillmentRequested ? cleanList(formData, 'product_position') : null
+  const productNotes = productFulfillmentRequested ? cleanText(formData.get('product_notes')) : null
 
   if (!name || !email || !message) {
     return { error: 'Bitte Name, E-Mail und Beschreibung angeben.' }
@@ -50,10 +105,18 @@ export async function submitInquiry(formData: FormData) {
   const { error } = await supabase.from('inquiries').insert({
     name,
     email,
+    phone,
     company,
     service_type: service,
     existing_material: have,
     message,
+    product_fulfillment_requested: productFulfillmentRequested,
+    product_types: productTypes,
+    product_quantity: productQuantity,
+    product_target_group: productTargetGroup,
+    product_color: productColor,
+    product_position: productPosition,
+    product_notes: productNotes,
     status: 'new',
     priority: 'normal',
     source: 'website',

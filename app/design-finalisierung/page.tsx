@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ProductFulfillmentSection from '../components/ProductFulfillmentSection';
 import { deliveryTimes } from '../site-config';
 
 export const metadata = {
@@ -42,6 +43,8 @@ export default function DesignFinalisierungPage() {
           <details className="border-b py-3"><summary>Bekomme ich druckfertige PDF?</summary><p className="mt-1 text-sm">Ja, je nach Projekt als PDF für Druck oder für Social Media.</p></details>
           <details className="border-b py-3"><summary>Wie viele Korrekturen gibt es?</summary><p className="mt-1 text-sm">Eine Korrekturrunde ist im Preis enthalten.</p></details>
         </div>
+
+        <ProductFulfillmentSection className="mt-12" />
 
         <div className="mt-10 text-center"><a href="/kontakt" className="rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Design finalisieren lassen</a></div>
       </main>
