@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { revalidatePath } from 'next/cache'
+import { ConfirmSubmitButton } from '../components/ConfirmSubmitButton'
 
 type Inquiry = {
   id: string
@@ -50,6 +52,30 @@ async function getInquiries(params: { search?: string; status?: string; service?
   }
 
   return (data || []) as Inquiry[]
+}
+
+async function deleteInquiry(formData: FormData) {
+  'use server'
+
+  const supabase = await createClient()
+  const id = formData.get('id') as string
+  if (!id) return
+
+  const { data: inquiry } = await supabase
+    .from('inquiries')
+    .select('uploaded_files')
+    .eq('id', id)
+    .single()
+
+  const files = (inquiry?.uploaded_files || []) as Array<{ path?: string }>
+  const paths = files.map((file) => file.path).filter((path): path is string => Boolean(path))
+
+  if (paths.length > 0) {
+    await supabase.storage.from('inquiry-uploads').remove(paths)
+  }
+
+  await supabase.from('inquiries').delete().eq('id', id)
+  revalidatePath('/admin/anfragen')
 }
 
 export default async function AdminAnfragen({ searchParams }: { searchParams: Promise<{ search?: string; status?: string; service?: string; priority?: string }> }) {
@@ -159,7 +185,18 @@ export default async function AdminAnfragen({ searchParams }: { searchParams: Pr
                   <td className="px-4 py-3 text-anthracite/80">{inq.source || 'website'}</td>
                   <td className="px-4 py-3 text-xs text-anthracite/60">{new Date(inq.created_at).toLocaleDateString('de-DE')}</td>
                   <td className="px-4 py-3 text-right">
-                    <Link href={`/admin/anfragen/${inq.id}`} className="text-sm text-ruby hover:underline">Details</Link>
+                    <div className="flex justify-end gap-2">
+                      <Link href={`/admin/anfragen/${inq.id}`} className="rounded border border-anthracite/15 px-2 py-1 text-xs hover:border-ruby/40">Details</Link>
+                      <form action={deleteInquiry}>
+                        <input type="hidden" name="id" value={inq.id} />
+                        <ConfirmSubmitButton
+                          message="Anfrage wirklich löschen?"
+                          className="rounded border border-red-200 px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                        >
+                          Löschen
+                        </ConfirmSubmitButton>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { revalidatePath } from 'next/cache'
+import { ConfirmSubmitButton } from '../components/ConfirmSubmitButton'
 
 type Offer = {
   id: string
@@ -40,6 +42,17 @@ async function getOffers() {
   }
 
   return ((data || []) as any) as Offer[]
+}
+
+async function deleteOffer(formData: FormData) {
+  'use server'
+
+  const supabase = await createClient()
+  const id = formData.get('id') as string
+  if (!id) return
+
+  await supabase.from('offers').delete().eq('id', id)
+  revalidatePath('/admin/angebot')
 }
 
 export default async function AdminAngebot() {
@@ -114,6 +127,15 @@ export default async function AdminAngebot() {
                     <div className="flex gap-2 justify-end">
                       <Link href={`/admin/angebot/${offer.id}`} className="rounded border border-anthracite/15 px-2 py-1 hover:border-ruby/40">Anzeigen</Link>
                       <a href={`/admin/angebot/${offer.id}?pdf=1`} className="rounded border border-anthracite/15 px-2 py-1 hover:border-ruby/40">PDF</a>
+                      <form action={deleteOffer}>
+                        <input type="hidden" name="id" value={offer.id} />
+                        <ConfirmSubmitButton
+                          message="Angebot wirklich löschen?"
+                          className="rounded border border-red-200 px-2 py-1 text-red-600 hover:bg-red-50"
+                        >
+                          Löschen
+                        </ConfirmSubmitButton>
+                      </form>
                     </div>
                   </td>
                 </tr>

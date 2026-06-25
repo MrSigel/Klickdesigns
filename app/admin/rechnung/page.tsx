@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
+import { ConfirmSubmitButton } from '../components/ConfirmSubmitButton'
 
 type Invoice = {
   id: string
@@ -136,6 +137,17 @@ async function createInvoiceFromOffer(formData: FormData) {
   // redirect to detail? but since server action in list, revalidate ok
 }
 
+async function deleteInvoice(formData: FormData) {
+  'use server'
+
+  const supabase = await createClient()
+  const id = formData.get('id') as string
+  if (!id) return
+
+  await supabase.from('invoices').delete().eq('id', id)
+  revalidatePath('/admin/rechnung')
+}
+
 export default async function AdminRechnung() {
   const [invoices, acceptedOffers] = await Promise.all([
     getInvoices(),
@@ -229,6 +241,15 @@ export default async function AdminRechnung() {
                           <button type="submit" className="rounded border border-anthracite/15 px-2 py-1 hover:border-green-600 text-green-700">Bezahlt</button>
                         </form>
                       )}
+                      <form action={deleteInvoice}>
+                        <input type="hidden" name="id" value={inv.id} />
+                        <ConfirmSubmitButton
+                          message="Rechnung wirklich löschen?"
+                          className="rounded border border-red-200 px-2 py-1 text-red-600 hover:bg-red-50"
+                        >
+                          Löschen
+                        </ConfirmSubmitButton>
+                      </form>
                     </div>
                   </td>
                 </tr>

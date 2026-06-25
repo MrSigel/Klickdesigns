@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { AddCustomerModal } from './AddCustomerModal'
+import { revalidatePath } from 'next/cache'
+import { ConfirmSubmitButton } from '../components/ConfirmSubmitButton'
 
 type Customer = {
   id: string
@@ -36,6 +38,17 @@ async function getCustomers(search: string) {
   }
 
   return (data || []) as Customer[]
+}
+
+async function deleteCustomer(formData: FormData) {
+  'use server'
+
+  const supabase = await createClient()
+  const id = formData.get('id') as string
+  if (!id) return
+
+  await supabase.from('customers').delete().eq('id', id)
+  revalidatePath('/admin/kunden')
 }
 
 export default async function AdminKunden({ searchParams }: { searchParams: Promise<{ search?: string }> }) {
@@ -112,12 +125,23 @@ export default async function AdminKunden({ searchParams }: { searchParams: Prom
                     {new Date(customer.created_at).toLocaleDateString('de-DE')}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Link
-                      href={`/admin/kunden/${customer.id}`}
-                      className="rounded-md border border-anthracite/15 px-3 py-1 text-xs hover:border-ruby/40"
-                    >
-                      Details
-                    </Link>
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        href={`/admin/kunden/${customer.id}`}
+                        className="rounded-md border border-anthracite/15 px-3 py-1 text-xs hover:border-ruby/40"
+                      >
+                        Details
+                      </Link>
+                      <form action={deleteCustomer}>
+                        <input type="hidden" name="id" value={customer.id} />
+                        <ConfirmSubmitButton
+                          message="Kunde wirklich löschen?"
+                          className="rounded-md border border-red-200 px-3 py-1 text-xs text-red-600 hover:bg-red-50"
+                        >
+                          Löschen
+                        </ConfirmSubmitButton>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}
