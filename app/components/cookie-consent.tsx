@@ -93,8 +93,8 @@ export function CookieConsent() {
             </p>
             <p className="mt-2 text-sm leading-6 text-anthracite/70">
               Notwendige lokale Speicherung sichert deine Auswahl. Optionale
-              Analyse ist derzeit nicht aktiv und würde nur nach deiner
-              Einwilligung geladen. Mehr dazu in der{" "}
+              Analyse nutzt Vercel Analytics und Vercel Speed Insights und wird
+              nur nach deiner Einwilligung geladen. Mehr dazu in der{" "}
               <Link href="/datenschutz" className="font-semibold text-ruby underline underline-offset-2">
                 Datenschutzerklärung
               </Link>
@@ -165,8 +165,8 @@ export function CookieConsent() {
                 <span>
                   <span className="font-semibold text-anthracite">Analyse</span>
                   <span className="mt-1 block text-sm leading-5 text-anthracite/60">
-                    Für eine mögliche spätere Einbindung von Vercel Analytics
-                    und Speed Insights.
+                    Vercel Analytics für anonymisierte Seitenaufrufe und Vercel
+                    Speed Insights für anonyme Performance-Messwerte.
                   </span>
                 </span>
                 <input

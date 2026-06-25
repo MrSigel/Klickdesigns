@@ -8,8 +8,7 @@ import {
   SITE_URL,
 } from "./site-config";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ConsentAnalytics } from "./components/consent-analytics";
 import ExitIntentPopup from "./components/ExitIntentPopup";
 import WhatsappButton from "./components/WhatsappButton";
 
@@ -86,8 +85,7 @@ export default function RootLayout({
         <CookieConsent />
         <ExitIntentPopup />
         <WhatsappButton />
-        <Analytics />
-        <SpeedInsights />
+        <ConsentAnalytics />
       </body>
     </html>
   );

@@ -51,9 +51,9 @@ export function CookieSettings() {
           <span>
             <span className="font-semibold text-anthracite">Analyse</span>
             <span className="mt-1 block text-sm leading-6 text-anthracite/65">
-              Vercel Analytics und Vercel Speed Insights sind derzeit nicht
-              eingebunden. Bei einer späteren Aktivierung dürfen sie nur nach
-              deiner Zustimmung geladen werden.
+              Vercel Analytics erfasst anonymisierte Seitenaufrufe. Vercel
+              Speed Insights erfasst anonyme Performance-Messwerte. Beides wird
+              nur nach deiner Zustimmung geladen.
             </span>
           </span>
           <input

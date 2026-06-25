@@ -199,10 +199,9 @@ export default function DatenschutzPage() {
 
       <LegalSection title="15. Cookie-Consent und Analyse">
         <p>
-          Optionale Analyse darf nur nach Einwilligung aktiviert werden. Vercel
-          Analytics und Vercel Speed Insights sind derzeit nicht eingebunden.
-          Falls sie später technisch aktiviert werden, werden entsprechende
-          Komponenten nur nach Zustimmung zur Kategorie „Analyse“ geladen. Eine
+          Optionale Analyse wird nur nach Einwilligung aktiviert. Bei Zustimmung
+          werden Vercel Analytics für anonymisierte Seitenaufrufe und Vercel
+          Speed Insights für anonyme Performance-Messwerte geladen. Eine
           erteilte Einwilligung kann jederzeit über die Cookie-Einstellungen mit
           Wirkung für die Zukunft geändert oder widerrufen werden.
         </p>
