@@ -229,7 +229,27 @@ ALTER TABLE public.activity_logs
   DROP CONSTRAINT IF EXISTS activity_logs_action_check;
 ALTER TABLE public.activity_logs
   ADD CONSTRAINT activity_logs_action_check
-  CHECK (action IN ('created', 'updated', 'deleted', 'archived', 'email_sent', 'pdf_created', 'status_changed', 'uploaded', 'converted', 'other'));
+  CHECK (
+    action IN (
+      'created',
+      'updated',
+      'deleted',
+      'archived',
+      'email_sent',
+      'pdf_created',
+      'status_changed',
+      'uploaded',
+      'media_uploaded',
+      'visibility_changed',
+      'featured_changed',
+      'marked_done',
+      'unmarked',
+      'activated',
+      'deactivated',
+      'converted',
+      'other'
+    )
+  );
 
 create table if not exists public.acquisition_leads (
   id uuid primary key default gen_random_uuid(),
@@ -1354,15 +1374,13 @@ using (
 -- No admin email or UUID is hardcoded in this schema.
 --
 -- Website inquiries:
--- Do not add an anon INSERT policy that exposes customers or inquiries directly.
--- A later server-side endpoint or Supabase Edge Function should validate input,
--- rate-limit requests and create the customer and inquiry in one transaction.
--- That trusted layer may use the service role only on the server; it must never
--- expose the service-role key to the browser.
+-- Anonymous visitors may insert inquiries and upload files only through the
+-- constrained public policies in this schema. Admin-only data remains protected by
+-- public.is_admin() policies.
 --
 -- Project files:
--- This table stores file metadata only. A later storage setup must define a
--- private Supabase Storage bucket and separate storage.objects policies.
+-- This table stores file metadata only. Customer upload files are stored in the
+-- private inquiry-uploads bucket and linked through inquiries.uploaded_files.
 
 -- =============================================================================
 -- activity_logs retention note
@@ -1374,39 +1392,175 @@ using (
 -- Jetzt noch keine automatische Löschung implementieren, falls kein Cron-System aktiv ist.
 -- =============================================================================
 
--- Force PostgREST schema cache reload.
--- Execute this (or the whole schema file) if you get:
--- "Could not find the 'category' column of 'logo_templates' in the schema cache"
-SELECT pg_notify('pgrst', 'reload schema');
-
 -- =============================================================================
--- Storage bucket for inquiry file uploads (from public contact forms)
+-- Storage: logo-vorlagen
 -- =============================================================================
+-- Public bucket for free logo template PNG/SVG downloads.
 
-insert into storage.buckets (id, name, public)
-values ('inquiry-uploads', 'inquiry-uploads', true)
-on conflict (id) do update set public = excluded.public;
+insert into storage.buckets (
+  id,
+  name,
+  public,
+  file_size_limit,
+  allowed_mime_types
+)
+values (
+  'logo-vorlagen',
+  'logo-vorlagen',
+  true,
+  10485760,
+  array[
+    'image/png',
+    'image/svg+xml'
+  ]
+)
+on conflict (id) do update
+set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
 
--- Public read for uploaded files (for admin preview/download via public url)
-drop policy if exists "Public can read inquiry-uploads" on storage.objects;
-create policy "Public can read inquiry-uploads"
-on storage.objects for select
+drop policy if exists "Public can read logo-vorlagen" on storage.objects;
+drop policy if exists "Public read logo-vorlagen" on storage.objects;
+create policy "Public read logo-vorlagen"
+on storage.objects
+for select
 to anon, authenticated
-using (bucket_id = 'inquiry-uploads');
+using (bucket_id = 'logo-vorlagen');
 
--- Allow anyone (anon) to upload via server-validated contact form
+drop policy if exists "Admins upload to logo-vorlagen" on storage.objects;
+drop policy if exists "Admins insert logo-vorlagen" on storage.objects;
+create policy "Admins insert logo-vorlagen"
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'logo-vorlagen'
+  and public.is_admin()
+);
+
+drop policy if exists "Admins manage logo-vorlagen" on storage.objects;
+drop policy if exists "Admins update logo-vorlagen" on storage.objects;
+create policy "Admins update logo-vorlagen"
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'logo-vorlagen'
+  and public.is_admin()
+)
+with check (
+  bucket_id = 'logo-vorlagen'
+  and public.is_admin()
+);
+
+drop policy if exists "Admins delete logo-vorlagen" on storage.objects;
+create policy "Admins delete logo-vorlagen"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'logo-vorlagen'
+  and public.is_admin()
+);
+
+-- =============================================================================
+-- Storage: social-media
+-- =============================================================================
+-- Private bucket for internal social media planning assets.
+
+insert into storage.buckets (
+  id,
+  name,
+  public,
+  file_size_limit,
+  allowed_mime_types
+)
+values (
+  'social-media',
+  'social-media',
+  false,
+  52428800,
+  array[
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'video/mp4',
+    'video/webm'
+  ]
+)
+on conflict (id) do update
+set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "Admins manage social-media" on storage.objects;
+create policy "Admins manage social-media"
+on storage.objects
+for all
+to authenticated
+using (
+  bucket_id = 'social-media'
+  and public.is_admin()
+)
+with check (
+  bucket_id = 'social-media'
+  and public.is_admin()
+);
+
+-- =============================================================================
+-- Storage: inquiry-uploads
+-- =============================================================================
+-- Private bucket for files uploaded through the public inquiry form.
+
+insert into storage.buckets (
+  id,
+  name,
+  public,
+  file_size_limit,
+  allowed_mime_types
+)
+values (
+  'inquiry-uploads',
+  'inquiry-uploads',
+  false,
+  10485760,
+  array[
+    'image/png',
+    'image/jpeg',
+    'image/jpg',
+    'image/webp',
+    'image/svg+xml',
+    'application/pdf'
+  ]
+)
+on conflict (id) do update
+set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+-- Remove legacy public read access. Admin pages use signed URLs instead.
+drop policy if exists "Public can read inquiry-uploads" on storage.objects;
+
+-- Allow anyone (anon) to upload via server-validated contact form.
 drop policy if exists "Anon can upload to inquiry-uploads" on storage.objects;
 create policy "Anon can upload to inquiry-uploads"
 on storage.objects for insert
 to anon
 with check (bucket_id = 'inquiry-uploads');
 
--- Admins can manage (update/delete) inquiry uploads
+-- Admins can create signed URLs and manage inquiry uploads.
 drop policy if exists "Admins manage inquiry-uploads" on storage.objects;
 create policy "Admins manage inquiry-uploads"
 on storage.objects for all
 to authenticated
 using (bucket_id = 'inquiry-uploads' and public.is_admin())
 with check (bucket_id = 'inquiry-uploads' and public.is_admin());
+
+-- Force PostgREST schema cache reload after all schema changes.
+notify pgrst, 'reload schema';
 
 commit;

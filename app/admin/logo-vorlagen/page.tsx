@@ -96,17 +96,13 @@ export default function AdminLogoVorlagen() {
     setPendingSvg(file)
   }
 
-  const uploadFile = async (file: File, folder: string): Promise<string | null> => {
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'bin'
+  const uploadFile = async (file: File): Promise<string | null> => {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '').slice(0, 40) || 'file'
     const fileName = `logo-${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`
     const path = fileName
     const { error } = await supabase.storage.from('logo-vorlagen').upload(path, file, { upsert: false })
     if (error) {
       console.error('Storage upload error', error)
-      if (error.message?.toLowerCase().includes('bucket not found')) {
-        console.error('Hinweis: Der Bucket "logo-vorlagen" existiert nicht. Bitte in Supabase Dashboard > Storage anlegen (Public). Siehe Kommentare in supabase/logo_vorlagen_schema.sql')
-      }
       return null
     }
     return path
@@ -132,18 +128,18 @@ export default function AdminLogoVorlagen() {
       let svgPath = editing?.svg_path || null
 
       if (pendingPng) {
-        const uploaded = await uploadFile(pendingPng, 'logo-vorlagen')
+        const uploaded = await uploadFile(pendingPng)
         if (!uploaded) {
-          setError('PNG Upload fehlgeschlagen. Bucket "logo-vorlagen" fehlt? Bitte anlegen (siehe supabase/logo_vorlagen_schema.sql).')
+          setError('PNG Upload fehlgeschlagen. Bitte Datei prüfen und erneut versuchen.')
           return
         }
         pngPath = uploaded
       }
 
       if (pendingSvg) {
-        const uploaded = await uploadFile(pendingSvg, 'logo-vorlagen')
+        const uploaded = await uploadFile(pendingSvg)
         if (!uploaded) {
-          setError('SVG Upload fehlgeschlagen. Bucket "logo-vorlagen" fehlt? Bitte anlegen (siehe supabase/logo_vorlagen_schema.sql).')
+          setError('SVG Upload fehlgeschlagen. Bitte Datei prüfen und erneut versuchen.')
           return
         }
         svgPath = uploaded
@@ -209,9 +205,6 @@ export default function AdminLogoVorlagen() {
         <p className="mt-1 text-[15px] text-anthracite/70">
           Kostenlose Logo-Vorlagen verwalten und zum Download anbieten.
         </p>
-        <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
-          ⚠️ Wichtig: Der Storage-Bucket „logo-vorlagen“ muss manuell in Supabase angelegt werden (Public). Siehe Anleitung in supabase/logo_vorlagen_schema.sql
-        </div>
       </div>
 
       <div className="mb-6">

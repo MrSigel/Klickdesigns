@@ -26,7 +26,7 @@ type Inquiry = {
   product_color: string | null
   product_position: string[] | null
   product_notes: string | null
-  uploaded_files?: Array<{ name: string; path: string; size?: number; type?: string }> | null
+  uploaded_files?: Array<{ name: string; path: string; size?: number; type?: string; signedUrl?: string | null }> | null
 }
 
 type Customer = {
@@ -42,7 +42,29 @@ function formatProductValue(value: string[] | string | null | undefined) {
 async function getInquiry(id: string) {
   const supabase = await createClient()
   const { data } = await supabase.from('inquiries').select('*').eq('id', id).single()
-  return data as Inquiry | null
+  const inquiry = data as Inquiry | null
+
+  if (!inquiry?.uploaded_files?.length) {
+    return inquiry
+  }
+
+  const uploadedFiles = await Promise.all(
+    inquiry.uploaded_files.map(async (file) => {
+      const { data: signed } = await supabase.storage
+        .from('inquiry-uploads')
+        .createSignedUrl(file.path, 60 * 60)
+
+      return {
+        ...file,
+        signedUrl: signed?.signedUrl || null,
+      }
+    })
+  )
+
+  return {
+    ...inquiry,
+    uploaded_files: uploadedFiles,
+  }
 }
 
 async function sendInquiryEmail(formData: FormData) {
@@ -227,12 +249,17 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
               <label className="block text-xs text-anthracite/70 mb-1">Hochgeladene Dateien</label>
               <ul className="text-sm space-y-1">
                 {inquiry.uploaded_files.map((f, i) => {
-                  const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/inquiry-uploads/${f.path}`
                   return (
                     <li key={i}>
-                      <a href={url} target="_blank" rel="noopener" className="text-ruby hover:underline">
-                        {f.name} {f.size ? `(${(f.size/1024/1024).toFixed(1)} MB)` : ''}
-                      </a>
+                      {f.signedUrl ? (
+                        <a href={f.signedUrl} target="_blank" rel="noopener noreferrer" className="text-ruby hover:underline">
+                          {f.name} {f.size ? `(${(f.size/1024/1024).toFixed(1)} MB)` : ''}
+                        </a>
+                      ) : (
+                        <span className="text-anthracite/70">
+                          {f.name} {f.size ? `(${(f.size/1024/1024).toFixed(1)} MB)` : ''}
+                        </span>
+                      )}
                     </li>
                   )
                 })}
