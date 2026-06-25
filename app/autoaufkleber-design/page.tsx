@@ -1,6 +1,7 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ProductFulfillmentSection from '../components/ProductFulfillmentSection';
+import SeoAnswerSection from '../components/SeoAnswerSection';
 
 export const metadata = {
   title: 'Autoaufkleber-Design – Dateien für Fahrzeugbeschriftung und Sticker | Klickdesigns',
@@ -18,6 +19,22 @@ export default function AutoaufkleberDesignPage() {
       <main className="mx-auto max-w-5xl px-5 py-16 sm:px-8">
         <h1 className="font-display text-[2.8rem] font-bold tracking-[-0.04em] text-anthracite">Autoaufkleber-Design</h1>
         <p className="mt-4 max-w-2xl text-[17px] text-anthracite/70">Design-Dateien für Autoaufkleber, Fahrzeugbeschriftung oder einfache Fahrzeug-Sticker. Für Dienstleister, Vereine, Creator und lokale Firmen.</p>
+
+        <SeoAnswerSection
+          className="mt-10"
+          title="Kurz erklärt"
+          items={[
+            { question: "Was wird vorbereitet?", answer: "Logos, Schriftzüge oder einfache Motive werden als nutzbare Dateien für Autoaufkleber und Fahrzeugbeschriftung vorbereitet." },
+            { question: "Für wen geeignet?", answer: "Geeignet für Handwerk, Vereine, lokale Firmen, Creator und Dienstleister mit Fahrzeugen oder mobilen Werbeflächen." },
+            { question: "Welche Dateien sind wichtig?", answer: "SVG, PDF oder PNG können je nach Motiv und Druckpartner sinnvoll sein." },
+            { question: "Wie läuft die Umsetzung?", answer: "Die Produktumsetzung erfolgt auf Anfrage nach Prüfung von Motiv, Menge, Format und gewünschter Ausführung." },
+          ]}
+          links={[
+            { href: "/loesungen/handwerker-logo-optimieren", label: "Handwerker Logo" },
+            { href: "/logo-vektorisieren", label: "Logo vektorisieren" },
+            { href: "/versand-lieferung", label: "Versand & Lieferung" },
+          ]}
+        />
 
         <ProductFulfillmentSection className="mt-12" />
 

@@ -1,14 +1,20 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ProductFulfillmentSection from '../components/ProductFulfillmentSection';
-import { deliveryTimes } from '../site-config';
+import SeoAnswerSection from '../components/SeoAnswerSection';
+import { deliveryTimes, SITE_URL } from '../site-config';
+import { breadcrumbSchema, jsonLd, serviceSchema } from '@/lib/seo/schema';
 
 export const metadata = {
   title: 'Logo vektorisieren lassen – SVG & PNG für Druck, Web und Sticker | Klickdesigns',
   description: 'Klickdesigns bereitet bestehende Logos aus PNG, JPG oder Screenshots als saubere SVG- und PNG-Dateien auf – ideal für Website, Druck, Kleidung, Sticker und Social Media.',
+  alternates: {
+    canonical: `${SITE_URL}/logo-vektorisieren`,
+  },
   openGraph: {
     title: 'Logo vektorisieren lassen – SVG & PNG | Klickdesigns',
     description: 'Bestehende Logos professionell als nutzbare Dateien aufbereiten. SVG, PNG transparent, druckfertig.',
+    url: `${SITE_URL}/logo-vektorisieren`,
   },
 };
 
@@ -23,6 +29,33 @@ export default function LogoVektorisierenPage() {
         <p className="mt-4 max-w-2xl text-[17px] text-anthracite/70">
           Sie haben ein Logo als PNG, JPG, Screenshot oder in schlechter Qualität? Wir bereiten es als skalierbare, druckfähige Datei auf.
         </p>
+
+        <SeoAnswerSection
+          className="mt-10"
+          items={[
+            {
+              question: "Was ist Logo-Vektorisierung?",
+              answer: "Eine Logo-Vektorisierung wandelt ein bestehendes Logo aus PNG, JPG, PDF oder Screenshot in eine saubere Vektordatei um.",
+            },
+            {
+              question: "Für wen ist diese Leistung geeignet?",
+              answer: "Geeignet für Unternehmen, Vereine, Creator und Privatkunden, die ein vorhandenes Logo für Web, Druck, Kleidung, Sticker oder Fahrzeuge nutzen möchten.",
+            },
+            {
+              question: "Welche Dateien werden benötigt?",
+              answer: "Hilfreich sind PNG, JPG, PDF, SVG oder ein gut erkennbarer Screenshot des vorhandenen Logos.",
+            },
+            {
+              question: "Welche Dateien können am Ende genutzt werden?",
+              answer: "Am Ende können je nach Ausgangsdatei SVG und PNG mit transparentem Hintergrund bereitgestellt werden, weitere Formate nach Vereinbarung.",
+            },
+          ]}
+          links={[
+            { href: "/loesungen/logo-vektorisieren-fuer-vereine", label: "Für Vereine" },
+            { href: "/loesungen/vektorgrafik-fuer-textildruck", label: "Für Textildruck" },
+            { href: "/versand-lieferung", label: "Versand & Lieferung" },
+          ]}
+        />
 
         <div className="mt-12 grid gap-10 lg:grid-cols-2">
           <div>
@@ -122,6 +155,8 @@ export default function LogoVektorisierenPage() {
           }).replace(/</g, "\\u003c")
         }}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(serviceSchema("Logo vektorisieren lassen", metadata.description, `${SITE_URL}/logo-vektorisieren`)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema([{ name: "Startseite", url: SITE_URL }, { name: "Logo vektorisieren", url: `${SITE_URL}/logo-vektorisieren` }])) }} />
     </>
   );
 }

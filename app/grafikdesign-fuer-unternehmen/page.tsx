@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SeoAnswerSection from '../components/SeoAnswerSection';
 
 export const metadata = {
   title: 'Grafikdesign für Unternehmen – Logo, Flyer, Social Media & Druckdaten | Klickdesigns',
@@ -18,6 +19,22 @@ export default function GrafikdesignFuerUnternehmenPage() {
         <h1 className="font-display text-[2.8rem] font-bold tracking-[-0.04em] text-anthracite">Grafikdesign für Unternehmen</h1>
         <p className="mt-4 max-w-2xl text-[17px] text-anthracite/70">Für kleine Unternehmen, Selbstständige, Dienstleister und Shops. Wir liefern einheitliche Grafiklösungen.</p>
         <p className="mt-2 text-sm text-anthracite/60">Klickdesigns aus Castrop-Rauxel (Ruhrgebiet / NRW) ist deutschlandweit für Unternehmen tätig.</p>
+
+        <SeoAnswerSection
+          className="mt-10"
+          title="Grafikdesign für Unternehmen"
+          items={[
+            { question: "Was bietet Klickdesigns an?", answer: "Logo-Design, Logo-Vektorisierung, Design-Finalisierung, Flyer, Social-Media-Grafiken, Druckdaten und Produktumsetzung auf Anfrage." },
+            { question: "Für wen geeignet?", answer: "Für kleine Unternehmen, Selbstständige, Dienstleister, Shops und lokale Betriebe." },
+            { question: "Welche Einsatzbereiche?", answer: "Web, Druck, Social Media, Kleidung, Sticker, Fahrzeuge, Visitenkarten, Banner und Werbemittel." },
+            { question: "Wo arbeitet Klickdesigns?", answer: "Klickdesigns sitzt in Castrop-Rauxel im Ruhrgebiet und arbeitet deutschlandweit digital." },
+          ]}
+          links={[
+            { href: "/logo-design", label: "Logo-Design" },
+            { href: "/design-finalisierung", label: "Design-Finalisierung" },
+            { href: "/kontakt", label: "Kontakt" },
+          ]}
+        />
 
         <div className="mt-10 text-center"><a href="/kontakt" className="rounded-md bg-ruby px-6 py-3 text-sm font-semibold text-offwhite">Projekt anfragen</a></div>
       </main>

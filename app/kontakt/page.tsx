@@ -7,6 +7,26 @@ import ProductFulfillmentFields from '../components/ProductFulfillmentFields';
 import ProductFulfillmentSection from '../components/ProductFulfillmentSection';
 import { submitInquiry } from '../actions/submit-inquiry';
 
+const contactJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  name: "Kontakt & Anfrage | Klickdesigns",
+  url: "https://www.klickdesigns.de/kontakt",
+  about: {
+    "@type": ["LocalBusiness", "ProfessionalService"],
+    name: "Klickdesigns",
+    email: "kontakt@klickdesigns.de",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Gerther Straße 76",
+      postalCode: "44577",
+      addressLocality: "Castrop-Rauxel",
+      addressRegion: "NRW",
+      addressCountry: "DE",
+    },
+  },
+};
+
 export default function KontaktPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -49,6 +69,20 @@ export default function KontaktPage() {
         </div>
 
         <ProductFulfillmentSection className="mb-10" />
+
+        <section className="mb-10 rounded-xl border border-anthracite/10 bg-white p-6">
+          <h2 className="font-display text-2xl font-bold tracking-[-0.035em] text-anthracite">Anfrage kurz erklärt</h2>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-lg border border-anthracite/10 bg-offwhite/70 p-4">
+              <h3 className="text-sm font-semibold text-anthracite">Welche Leistungen?</h3>
+              <p className="mt-2 text-sm text-anthracite/65">Logo, Logo-Vektorisierung, Design-Finalisierung, Flyer, Social Media, Sticker, Autoaufkleber und Produktumsetzung auf Anfrage.</p>
+            </div>
+            <div className="rounded-lg border border-anthracite/10 bg-offwhite/70 p-4">
+              <h3 className="text-sm font-semibold text-anthracite">Welche Dateien?</h3>
+              <p className="mt-2 text-sm text-anthracite/65">PNG, JPG, SVG, PDF oder WEBP können mitgesendet werden, wenn bereits ein Logo oder Entwurf vorhanden ist.</p>
+            </div>
+          </div>
+        </section>
 
         {submitted ? (
           <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
@@ -119,6 +153,12 @@ export default function KontaktPage() {
         )}
       </main>
       <Footer />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(contactJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
     </>
   );
 }

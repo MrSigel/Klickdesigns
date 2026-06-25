@@ -22,7 +22,7 @@ const professionalServiceJsonLd = {
   "@context": "https://schema.org",
   "@type": ["LocalBusiness", "ProfessionalService"],
   name: "Klickdesigns",
-  description: "Mediengestaltung und Grafikdesign",
+  description: "Klickdesigns ist eine Grafikdesign- und Mediengestaltungsagentur aus Castrop-Rauxel. Klickdesigns unterstützt Unternehmen, Vereine, Creator, Selbstständige und Privatkunden bei Logos, Logo-Vektorisierung, Design-Finalisierung, Flyern, Social-Media-Grafiken, Stickern, Autoaufklebern, Druckdaten und Produktumsetzung auf Anfrage.",
   url: "https://www.klickdesigns.de",
   founder: {
     "@type": "Person",
@@ -50,9 +50,29 @@ const professionalServiceJsonLd = {
   serviceType: [
     "Mediengestaltung",
     "Grafikdesign",
+    "Logo-Design",
     "Logo-Vektorisierung",
     "Design-Finalisierung",
+    "Flyer",
+    "Social-Media-Grafiken",
+    "Sticker",
+    "Autoaufkleber",
+    "Druckdaten",
+    "Produktumsetzung auf Anfrage",
   ],
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Klickdesigns",
+  url: "https://www.klickdesigns.de",
+  inLanguage: "de-DE",
+  publisher: {
+    "@type": "Organization",
+    name: "Klickdesigns",
+    url: "https://www.klickdesigns.de",
+  },
 };
 
 /* ----------------------------------------------------------------------- */
@@ -1676,6 +1696,30 @@ function OfferAcceptedBanner() {
   )
 }
 
+function EntitySummary() {
+  return (
+    <section className="border-y border-anthracite/10 bg-white">
+      <div className="mx-auto grid max-w-6xl gap-6 px-5 py-10 sm:px-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <h2 className="font-display text-2xl font-bold tracking-[-0.035em] text-anthracite">
+            Klickdesigns kurz zusammengefasst
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-anthracite/70">
+            Klickdesigns ist eine Grafikdesign- und Mediengestaltungsagentur aus Castrop-Rauxel im Ruhrgebiet. Klickdesigns arbeitet deutschlandweit digital für Unternehmen, Vereine, Selbstständige, Creator und Privatkunden.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-anthracite/70">
+          {["Logo-Design", "Logo-Vektorisierung", "Design-Finalisierung", "Flyer", "Social Media", "Sticker", "Autoaufkleber", "Druckdaten"].map((item) => (
+            <span key={item} className="rounded-md border border-anthracite/10 bg-offwhite px-3 py-2 text-center">
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ----------------------------------------------------------------------- */
 /*  Page                                                                    */
 /* ----------------------------------------------------------------------- */
@@ -1692,6 +1736,12 @@ export default function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
           __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c"),
         }}
       />
@@ -1701,6 +1751,7 @@ export default function Home() {
       </Suspense>
       <Hero />
       <AudienceStrip />
+      <EntitySummary />
       <ProblemSolution />
       <LogoSprint />
       <Packages />

@@ -47,7 +47,7 @@ export const templatePages: TemplatePage[] = [
     relatedLinks: [
       { label: "Kostenlose Logo-Vorlagen", href: "/logo-vorlagen?kategorie=verein", text: "Verfügbare Vereins-Vorlagen im bestehenden Vorlagenbereich prüfen." },
       { label: "Logo vektorisieren für Vereine", href: "/loesungen/logo-vektorisieren-fuer-vereine", text: "Bestehende Vereinslogos als nutzbare Dateien aufbereiten lassen." },
-      { label: "Grafikdesign für Vereine", href: "/grafikdesign-fuer-vereine", text: "Designs für Vereine und Vereinskommunikation." },
+      { label: "Logo-Sprint", href: "/logo-sprint", text: "Schneller Einstieg für neue Logo-Richtungen." },
     ],
     faq: [
       { question: "Gibt es hier einen direkten Download?", answer: "Nein, Downloads laufen ausschließlich über die bestehende Logo-Vorlagen-Seite, wenn dort eine passende Vorlage verfügbar ist." },
@@ -86,7 +86,7 @@ export const templatePages: TemplatePage[] = [
     relatedLinks: [
       { label: "Kostenlose Logo-Vorlagen", href: "/logo-vorlagen?kategorie=handwerk", text: "Verfügbare Handwerk-Vorlagen im bestehenden Vorlagenbereich prüfen." },
       { label: "Handwerker Logo optimieren", href: "/loesungen/handwerker-logo-optimieren", text: "Bestehende Logos für Betrieb, Druck und Web verbessern lassen." },
-      { label: "Autoaufkleber-Design", href: "/autoaufkleber-design", text: "Dateien für Fahrzeugbeschriftung und Aufkleber vorbereiten." },
+      { label: "Design-Finalisierung", href: "/design-finalisierung", text: "Bestehende Entwürfe sauber finalisieren lassen." },
     ],
     faq: [
       { question: "Kann ich hier direkt ein Handwerk-Logo herunterladen?", answer: "Nein, direkte Downloads gibt es nur im bestehenden Logo-Vorlagen-Bereich, wenn eine passende Vorlage verfügbar ist." },

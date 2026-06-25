@@ -1,11 +1,16 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ProductFulfillmentSection from '../components/ProductFulfillmentSection';
-import { deliveryTimes } from '../site-config';
+import SeoAnswerSection from '../components/SeoAnswerSection';
+import { deliveryTimes, SITE_URL } from '../site-config';
+import { breadcrumbSchema, jsonLd, serviceSchema } from '@/lib/seo/schema';
 
 export const metadata = {
   title: 'Design-Finalisierung – bestehende Entwürfe, Flyer & Social-Media-Grafiken optimieren | Klickdesigns',
   description: 'Klickdesigns finalisiert und optimiert bestehende Flyer, Canva-Designs und Social-Media-Grafiken. Layout, Farben, Typografie und Lesbarkeit für Print und Web.',
+  alternates: {
+    canonical: `${SITE_URL}/design-finalisierung`,
+  },
   openGraph: {
     title: 'Design-Finalisierung ab 149 € | Klickdesigns',
     description: 'Bestehende Designs professionell aufbereiten – für Druck und Social Media.',
@@ -19,6 +24,21 @@ export default function DesignFinalisierungPage() {
       <main className="mx-auto max-w-5xl px-5 py-16 sm:px-8">
         <h1 className="font-display text-[2.8rem] font-bold tracking-[-0.04em] text-anthracite">Design-Finalisierung</h1>
         <p className="mt-4 max-w-2xl text-[17px] text-anthracite/70">Sie haben bereits einen Entwurf, ein Canva-Design oder einen Flyer? Wir verbessern Layout, Farben, Typografie und bereiten druck- oder webfertige Dateien vor.</p>
+
+        <SeoAnswerSection
+          className="mt-10"
+          items={[
+            { question: "Was bedeutet Design-Finalisierung?", answer: "Bei der Design-Finalisierung wird ein vorhandener Entwurf professionell überarbeitet, vereinheitlicht und für die spätere Nutzung vorbereitet." },
+            { question: "Kann ein Canva-Entwurf überarbeitet werden?", answer: "Ja, Canva-Designs, Flyer, Social-Media-Grafiken und andere Entwürfe können verbessert und exportfertig vorbereitet werden." },
+            { question: "Für welche Medien kann ein Design vorbereitet werden?", answer: "Möglich sind Web, Druck, Social Media, Flyer, Sticker, Kleidung und weitere Werbemittel nach Vereinbarung." },
+            { question: "Wie läuft die Anfrage ab?", answer: "Sie senden den vorhandenen Entwurf, beschreiben den Zweck und erhalten eine saubere Finalisierung mit vereinbartem Export." },
+          ]}
+          links={[
+            { href: "/flyer-design", label: "Flyer-Design" },
+            { href: "/social-media-design", label: "Social Media" },
+            { href: "/versand-lieferung", label: "Produktumsetzung" },
+          ]}
+        />
 
         <div className="mt-10">
           <h2 className="text-xl font-semibold">Was wir optimieren</h2>
@@ -64,6 +84,8 @@ export default function DesignFinalisierungPage() {
           }).replace(/</g, "\\u003c")
         }}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(serviceSchema("Design-Finalisierung", metadata.description, `${SITE_URL}/design-finalisierung`)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema([{ name: "Startseite", url: SITE_URL }, { name: "Design-Finalisierung", url: `${SITE_URL}/design-finalisierung` }])) }} />
     </>
   );
 }

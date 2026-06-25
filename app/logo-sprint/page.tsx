@@ -1,13 +1,19 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { deliveryTimes } from '../site-config';
+import SeoAnswerSection from '../components/SeoAnswerSection';
+import { deliveryTimes, SITE_URL } from '../site-config';
+import { breadcrumbSchema, jsonLd, serviceSchema } from '@/lib/seo/schema';
 
 export const metadata = {
   title: 'Logo-Sprint für 20 € – schnelle Logo-Richtungen für dein Projekt | Klickdesigns',
   description: 'Mit dem Logo-Sprint erhalten Sie 4–5 Logo-Richtungen als Vorschau und eine finale Datei als SVG und PNG mit transparentem Hintergrund für nur 20 €.',
+  alternates: {
+    canonical: `${SITE_URL}/logo-sprint`,
+  },
   openGraph: {
     title: 'Logo-Sprint 20 € | Klickdesigns',
     description: 'Schneller Einstieg: mehrere Logo-Ideen als Vorschau und finale nutzbare Dateien.',
+    url: `${SITE_URL}/logo-sprint`,
   },
 };
 
@@ -18,6 +24,21 @@ export default function LogoSprintPage() {
       <main className="mx-auto max-w-5xl px-5 py-16 sm:px-8">
         <h1 className="font-display text-[2.8rem] font-bold tracking-[-0.04em] text-anthracite">Logo-Sprint für 20 €</h1>
         <p className="mt-4 max-w-2xl text-[17px] text-anthracite/70">Der schnelle Einstieg für neue Logo-Ideen. Sie erhalten mehrere Richtungen und eine finale, nutzbare Datei.</p>
+
+        <SeoAnswerSection
+          className="mt-10"
+          items={[
+            { question: "Was ist der Logo-Sprint?", answer: "Der Logo-Sprint ist ein kompakter Einstieg für neue Logo-Richtungen mit Vorschau, Favoritenauswahl und nutzbaren Dateien." },
+            { question: "Für wen eignet sich der Logo-Sprint?", answer: "Er eignet sich für kleine Projekte, Selbstständige, Vereine und Creator, die schnell erste Logo-Richtungen benötigen." },
+            { question: "Kann ein bestehendes Logo überarbeitet werden?", answer: "Für bestehende Logos ist meist die Logo-Vektorisierung oder Logo-Optimierung passender als der Sprint." },
+            { question: "Wie läuft die Anfrage ab?", answer: "Sie beschreiben kurz das Projekt, erhalten Richtungen zur Auswahl und danach die finalisierte Datei." },
+          ]}
+          links={[
+            { href: "/logo-vektorisieren", label: "Logo vektorisieren" },
+            { href: "/logo-vorlagen", label: "Kostenlose Vorlagen" },
+            { href: "/kontakt", label: "Kontakt" },
+          ]}
+        />
 
         <div className="mt-10 grid gap-8 md:grid-cols-2">
           <div className="rounded-xl border border-anthracite/10 p-6">
@@ -83,6 +104,8 @@ export default function LogoSprintPage() {
           }).replace(/</g, "\\u003c")
         }}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(serviceSchema("Logo-Sprint", metadata.description, `${SITE_URL}/logo-sprint`)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema([{ name: "Startseite", url: SITE_URL }, { name: "Logo-Sprint", url: `${SITE_URL}/logo-sprint` }])) }} />
     </>
   );
 }
