@@ -479,6 +479,49 @@ create table if not exists public.lead_events (
 
 create index if not exists idx_lead_events_type on public.lead_events (event_type);
 
+-- Admin-only contacts extracted from manually pasted text.
+-- Stores only website and email. No names, phone numbers, addresses or social handles.
+create table if not exists public.extracted_contacts (
+  id uuid primary key default gen_random_uuid(),
+  website text,
+  email text,
+  source text default 'admin_extractor',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint extracted_contacts_not_empty_check check (
+    website is not null or email is not null
+  )
+);
+
+alter table public.extracted_contacts add column if not exists website text;
+alter table public.extracted_contacts add column if not exists email text;
+alter table public.extracted_contacts add column if not exists source text default 'admin_extractor';
+alter table public.extracted_contacts add column if not exists created_at timestamptz not null default now();
+alter table public.extracted_contacts add column if not exists updated_at timestamptz not null default now();
+
+alter table public.extracted_contacts
+  drop constraint if exists extracted_contacts_not_empty_check;
+alter table public.extracted_contacts
+  add constraint extracted_contacts_not_empty_check
+  check (website is not null or email is not null);
+
+create index if not exists extracted_contacts_email_idx
+  on public.extracted_contacts (email);
+create index if not exists extracted_contacts_website_idx
+  on public.extracted_contacts (website);
+create index if not exists extracted_contacts_created_at_idx
+  on public.extracted_contacts (created_at desc);
+
+create unique index if not exists extracted_contacts_email_unique_idx
+  on public.extracted_contacts (lower(email))
+  where email is not null;
+create unique index if not exists extracted_contacts_website_email_unique_idx
+  on public.extracted_contacts (
+    lower(coalesce(website, '')),
+    lower(coalesce(email, ''))
+  )
+  where website is not null or email is not null;
+
 -- RLS for new tables
 alter table public.leads enable row level security;
 alter table public.lead_events enable row level security;
@@ -934,6 +977,11 @@ create trigger settings_set_updated_at
 before update on public.settings
 for each row execute function public.set_updated_at();
 
+drop trigger if exists extracted_contacts_set_updated_at on public.extracted_contacts;
+create trigger extracted_contacts_set_updated_at
+before update on public.extracted_contacts
+for each row execute function public.set_updated_at();
+
 -- =============================================================================
 -- RLS
 -- =============================================================================
@@ -956,6 +1004,7 @@ alter table public.social_posts enable row level security;
 alter table public.social_templates enable row level security;
 alter table public.portfolio_references enable row level security;
 alter table public.settings enable row level security;
+alter table public.extracted_contacts enable row level security;
 
 create or replace function public.is_admin()
 returns boolean
@@ -993,6 +1042,7 @@ revoke all on table public.social_posts from anon;
 revoke all on table public.social_templates from anon;
 revoke all on table public.portfolio_references from anon;
 revoke all on table public.settings from anon;
+revoke all on table public.extracted_contacts from anon;
 
 -- Allow public read for offers by token (for customer acceptance)
 grant select on table public.offers to anon;
@@ -1018,6 +1068,7 @@ grant select on table public.portfolio_references to anon;
 grant select on table public.settings to anon;
 grant select, insert, update, delete on table public.portfolio_references to authenticated;
 grant select, insert, update, delete on table public.settings to authenticated;
+grant select, insert, update, delete on table public.extracted_contacts to authenticated;
 
 drop policy if exists "Admins manage profiles" on public.profiles;
 create policy "Admins manage profiles"
@@ -1209,6 +1260,14 @@ on public.settings
 for select
 to anon, authenticated
 using (is_public = true);
+
+drop policy if exists "Admins manage extracted_contacts" on public.extracted_contacts;
+create policy "Admins manage extracted_contacts"
+on public.extracted_contacts
+for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
 
 alter table public.email_logs enable row level security;
 revoke all on table public.email_logs from anon;

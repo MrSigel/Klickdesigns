@@ -13,6 +13,7 @@ const navItems = [
   { href: '/admin/angebot', label: 'Angebot' },
   { href: '/admin/rechnung', label: 'Rechnung' },
   { href: '/admin/akquise', label: 'Akquise' },
+  { href: '/admin/extractor', label: 'Daten-Extractor' },
   { href: '/admin/suchen', label: 'Suchen' },
   { href: '/admin/social-media', label: 'Social Media' },
   { href: '/admin/referenzen', label: 'Referenzen' },
