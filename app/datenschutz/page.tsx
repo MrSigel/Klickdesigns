@@ -15,9 +15,9 @@ export default function DatenschutzPage() {
     >
       <LegalSection title="1. Verantwortlicher">
         <p>
-          Enrico Gross, Einzelunternehmen
-          <br />
           Klickdesigns
+          <br />
+          Enrico Gross, Einzelunternehmen
           <br />
           Gerther Straße 76
           <br />
@@ -25,7 +25,12 @@ export default function DatenschutzPage() {
           <br />
           E-Mail: kontakt@klickdesigns.de
           <br />
-          Telefon: <a href="tel:+4915563535989" className="text-ruby underline underline-offset-2">+49 155 63535989</a>
+          Website: https://www.klickdesigns.de
+          <br />
+          Telefon:{" "}
+          <a href="tel:+4915563535989" className="text-ruby underline underline-offset-2">
+            +49 155 63535989
+          </a>
         </p>
       </LegalSection>
 
@@ -33,9 +38,9 @@ export default function DatenschutzPage() {
         <p>
           Personenbezogene Daten werden nur verarbeitet, soweit dies für die
           Bereitstellung der Website, die Bearbeitung von Anfragen, die
-          Angebotserstellung, die Durchführung vereinbarter Design- und
-          Grafikleistungen, die Kommunikation oder die Erfüllung gesetzlicher
-          Pflichten erforderlich ist.
+          Angebotserstellung, die Durchführung vereinbarter Design-,
+          Druckdaten- oder Produktumsetzungsleistungen, die Kommunikation oder
+          die Erfüllung gesetzlicher Pflichten erforderlich ist.
         </p>
       </LegalSection>
 
@@ -80,14 +85,15 @@ export default function DatenschutzPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Kontaktaufnahme">
+      <LegalSection title="6. Anfrageformular und Projektanfragen">
         <p>
-          Bei einer Kontaktaufnahme per E-Mail oder Telefon verarbeiten wir die
-          mitgeteilten Kontaktdaten und Inhalte zur Bearbeitung der Anfrage und
-          für die weitere Kommunikation. Das derzeit auf der Website sichtbare
-          Kontaktformular übermittelt keine Daten. Wird es später technisch
-          aktiviert, gelten für die darüber übermittelten Angaben dieselben
-          Zwecke und Rechtsgrundlagen.
+          Bei einer Kontaktaufnahme per Kontaktformular, E-Mail oder Telefon
+          verarbeiten wir die übermittelten Angaben zur Bearbeitung der Anfrage,
+          zur Angebotserstellung und für die weitere Kommunikation. Dazu können
+          insbesondere Name, E-Mail-Adresse, Telefonnummer, Unternehmensdaten,
+          Projektbeschreibung, gewünschte Leistung, Produktumsetzungswünsche,
+          Mengenangaben, Größen oder Ausführungen, Farben, Designpositionen und
+          sonstige Hinweise gehören.
         </p>
         <p>
           Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit die Anfrage
@@ -98,50 +104,65 @@ export default function DatenschutzPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="7. Angebots- und Projektanfragen">
+      <LegalSection title="7. Datei-Uploads und Projektdateien">
         <p>
-          Für Anfragebearbeitung, Angebotserstellung, Durchführung von Design-
-          und Grafikleistungen, Kommunikation und Dokumentation verarbeiten wir
-          die hierfür erforderlichen Angaben. Dazu können Namen,
-          Kontaktdaten, Unternehmens- und Projektdaten, gewünschte Leistungen,
-          Vereinbarungen und Abrechnungsdaten gehören.
+          Im Rahmen einer Anfrage oder eines Auftrags können Logos, Entwürfe,
+          Bilder, Druckdaten, PDFs, ZIP-Dateien oder sonstige vom Kunden
+          bereitgestellte Projektdateien verarbeitet werden. Die Verarbeitung
+          erfolgt zur Bearbeitung der Anfrage, Angebotserstellung,
+          Designumsetzung, Druckdatenprüfung, Produktumsetzung, Abstimmung und
+          Kommunikation mit dem Kunden.
+        </p>
+        <p>
+          Bitte übermittle nur Daten, Dateien und Inhalte, zu deren Weitergabe
+          und Nutzung du berechtigt bist.
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Eingesendete Dateien und Inhalte">
+      <LegalSection title="8. Weitergabe an Druck- und Produktionspartner">
         <p>
-          Im Rahmen einer Anfrage oder eines Auftrags können Logos, PNG- oder
-          JPG-Dateien, Screenshots, Flyer, Social-Media-Designs,
-          Designentwürfe, Texte oder andere Projektdateien verarbeitet werden.
-          Die Verarbeitung erfolgt zur Prüfung der Anfrage, Angebotserstellung,
-          Durchführung der vereinbarten Leistung, Abstimmung und Dokumentation.
-          Bitte übermittle nur Daten und Inhalte, zu deren Weitergabe du
-          berechtigt bist.
+          Für Produktumsetzungen kann es erforderlich sein, Projektdateien,
+          Druckdaten, Versanddaten und auftragsbezogene Informationen an
+          geeignete Druck- oder Produktionspartner weiterzugeben. Die Weitergabe
+          erfolgt nur, soweit sie zur Angebotserstellung, Produktion, Lieferung
+          oder Abwicklung des konkreten Auftrags erforderlich ist.
+        </p>
+        <p>
+          Eine Weitergabe für fremde Werbung erfolgt nicht.
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Speicherdauer">
+      <LegalSection title="9. Versanddaten">
         <p>
-          Daten werden nur so lange gespeichert, wie sie für den jeweiligen
-          Zweck erforderlich sind. Anschließend werden sie gelöscht, sofern
-          keine gesetzlichen Aufbewahrungspflichten, die Durchsetzung oder
-          Abwehr von Ansprüchen oder eine wirksame Einwilligung eine weitere
-          Speicherung rechtfertigen. Gesetzlich aufbewahrungspflichtige
-          Unterlagen werden bis zum Ablauf der jeweiligen Frist gespeichert.
+          Für die Lieferung individuell beauftragter Produkte können Name oder
+          Firma, Lieferadresse, Kontaktinformationen und auftragsbezogene
+          Produktinformationen verarbeitet werden. Diese Daten werden genutzt,
+          um die Lieferung und Versandabwicklung durch den beauftragten
+          Druck- oder Produktionspartner zu ermöglichen.
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Empfänger und Dienstleister">
+      <LegalSection title="10. Zahlungs- und Rechnungsdaten">
+        <p>
+          Zur Vertragsabwicklung, Buchhaltung und Erfüllung gesetzlicher
+          Nachweispflichten verarbeiten wir Rechnungsdaten, Zahlungsstatus,
+          Angebotsdaten sowie Buchungs- und Auftragsdaten. Rechtsgrundlagen sind
+          insbesondere Art. 6 Abs. 1 lit. b und c DSGVO.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="11. Empfänger und Dienstleister">
         <p>
           Daten können an technische Dienstleister, Hosting-Anbieter,
-          Kommunikationsdienste oder sonstige Auftragsverarbeiter übermittelt
-          werden, soweit dies für Betrieb, Kommunikation oder Durchführung der
-          vereinbarten Leistung erforderlich ist. Eine Weitergabe an andere
-          Empfänger erfolgt nur mit Rechtsgrundlage oder gesetzlicher Pflicht.
+          Kommunikationsdienste, Zahlungs- oder Rechnungsdienstleister,
+          Druck-/Produktionspartner oder sonstige Auftragsverarbeiter
+          übermittelt werden, soweit dies für Betrieb, Kommunikation,
+          Angebotserstellung, Durchführung der vereinbarten Leistung, Lieferung
+          oder gesetzliche Pflichten erforderlich ist.
         </p>
       </LegalSection>
 
-      <LegalSection title="11. Drittlandübermittlung">
+      <LegalSection title="12. Drittlandübermittlung">
         <p>
           Bei technischen Dienstleistern kann eine Verarbeitung in Drittländern
           nicht vollständig ausgeschlossen werden. Soweit erforderlich, erfolgt
@@ -151,7 +172,23 @@ export default function DatenschutzPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="12. Cookies und lokale Speicherung">
+      <LegalSection title="13. Speicherdauer">
+        <p>
+          Daten werden nur so lange gespeichert, wie es für Anfrage,
+          Projektabwicklung, Vertragsabwicklung, gesetzliche
+          Aufbewahrungspflichten oder berechtigte Interessen erforderlich ist.
+          Anschließend werden sie gelöscht, sofern keine weitere Aufbewahrung
+          erforderlich oder zulässig ist.
+        </p>
+        <p>
+          Hochgeladene Projektdateien können nach Abschluss des Projekts
+          gelöscht werden, soweit keine weitere Aufbewahrung für
+          Projektabwicklung, Nachweise, gesetzliche Pflichten oder berechtigte
+          Interessen erforderlich ist.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="14. Cookies und lokale Speicherung">
         <p>
           Die Website speichert die Cookie-Consent-Auswahl im lokalen Speicher
           des Browsers. Diese notwendige Speicherung dient dazu, die getroffene
@@ -160,7 +197,7 @@ export default function DatenschutzPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="13. Cookie-Consent und Analyse">
+      <LegalSection title="15. Cookie-Consent und Analyse">
         <p>
           Optionale Analyse darf nur nach Einwilligung aktiviert werden. Vercel
           Analytics und Vercel Speed Insights sind derzeit nicht eingebunden.
@@ -171,7 +208,7 @@ export default function DatenschutzPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="14. Betroffenenrechte">
+      <LegalSection title="16. Betroffenenrechte">
         <p>Betroffene Personen haben nach Maßgabe der DSGVO insbesondere das Recht auf:</p>
         <ul className="list-disc space-y-2 pl-5">
           <li>Auskunft über verarbeitete personenbezogene Daten,</li>
@@ -183,7 +220,7 @@ export default function DatenschutzPage() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="15. Beschwerderecht">
+      <LegalSection title="17. Beschwerderecht">
         <p>
           Du hast das Recht, dich bei einer Datenschutzaufsichtsbehörde zu
           beschweren, wenn du der Ansicht bist, dass die Verarbeitung deiner

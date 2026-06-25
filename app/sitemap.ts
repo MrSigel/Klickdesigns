@@ -21,6 +21,7 @@ const publicRoutes = [
   { path: "/agb", priority: 0.3, changeFrequency: "yearly" as const },
   { path: "/widerruf", priority: 0.3, changeFrequency: "yearly" as const },
   { path: "/cookie-einstellungen", priority: 0.3, changeFrequency: "yearly" as const },
+  { path: "/versand-lieferung", priority: 0.3, changeFrequency: "yearly" as const },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

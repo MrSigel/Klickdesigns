@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LegalPage, LegalSection } from "../components/legal-page";
 
 export const metadata: Metadata = {
@@ -11,13 +12,13 @@ export default function WiderrufPage() {
     <LegalPage
       eyebrow="Rechtliches"
       title="Widerrufsbelehrung"
-      intro="Informationen zum gesetzlichen Widerrufsrecht für Verbraucher."
+      intro="Informationen zum gesetzlichen Widerrufsrecht für Verbraucher bei Dienstleistungen, digitalen Leistungen und individuell angefertigten Waren."
     >
-      <LegalSection title="Widerrufsrecht">
+      <LegalSection title="Widerrufsrecht bei Dienstleistungen">
         <p>
-          Verbraucher haben das Recht, binnen vierzehn Tagen ohne Angabe von
-          Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt
-          vierzehn Tage ab dem Tag des Vertragsschlusses.
+          Verbraucher haben bei Dienstleistungen grundsätzlich das Recht, binnen
+          vierzehn Tagen ohne Angabe von Gründen den Vertrag zu widerrufen. Die
+          Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsschlusses.
         </p>
       </LegalSection>
 
@@ -38,7 +39,10 @@ export default function WiderrufPage() {
           <br />
           E-Mail: kontakt@klickdesigns.de
           <br />
-          Telefon: <a href="tel:+4915563535989" className="text-ruby underline underline-offset-2">+49 155 63535989</a>
+          Telefon:{" "}
+          <a href="tel:+4915563535989" className="text-ruby underline underline-offset-2">
+            +49 155 63535989
+          </a>
         </p>
         <p>
           Du kannst dafür das unten stehende Muster-Widerrufsformular verwenden,
@@ -84,16 +88,42 @@ export default function WiderrufPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="Digitale Inhalte">
+      <LegalSection title="Digitale Inhalte und gestalterische Leistungen">
         <p>
           Soweit im Einzelfall ein Vertrag über die Bereitstellung digitaler
           Inhalte geschlossen wird, die sich nicht auf einem körperlichen
           Datenträger befinden, gelten die hierfür vorgesehenen gesetzlichen
           Voraussetzungen. Ein vorzeitiges Erlöschen des Widerrufsrechts setzt
-          insbesondere die erforderliche ausdrückliche Zustimmung zum Beginn
-          der Vertragserfüllung, die Bestätigung der Kenntnis vom möglichen
-          Verlust des Widerrufsrechts und die gesetzlich erforderliche
+          insbesondere die erforderliche ausdrückliche Zustimmung zum Beginn der
+          Vertragserfüllung, die Bestätigung der Kenntnis vom möglichen Verlust
+          des Widerrufsrechts und die gesetzlich erforderliche
           Vertragsbestätigung voraus.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Individuell angefertigte und personalisierte Waren">
+        <p>
+          Bei Waren, die nach Kundenspezifikation angefertigt werden oder
+          eindeutig auf persönliche Bedürfnisse zugeschnitten sind, kann ein
+          Widerrufsrecht ausgeschlossen sein. Dies betrifft insbesondere
+          individuell bedruckte oder personalisierte Produkte wie T-Shirts,
+          Pullover, Sticker, Autoaufkleber, Flyer oder ähnliche Produkte mit
+          Kundenlogo, Kundenmotiv, Wunschtext, individueller Farbe, Größe,
+          Platzierung oder sonstiger kundenspezifischer Gestaltung.
+        </p>
+        <p>
+          Der Kunde wird vor Beauftragung und Produktionsstart über die
+          individuelle Anfertigung und den möglichen Ausschluss des Widerrufs
+          informiert. Die Produktion startet erst nach ausdrücklicher
+          Druckfreigabe und nach Zahlungseingang der fälligen Vorkasse
+          beziehungsweise Anzahlung.
+        </p>
+        <p>
+          Hinweise zu Versand, Lieferung und Produktionsstart stehen unter{" "}
+          <Link href="/versand-lieferung" className="text-ruby underline underline-offset-2">
+            Versand &amp; Lieferung
+          </Link>
+          .
         </p>
       </LegalSection>
 
@@ -112,12 +142,17 @@ export default function WiderrufPage() {
           <p>
             Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen
             Vertrag über die Erbringung der folgenden Dienstleistung (*) / die
-            Bereitstellung der folgenden digitalen Inhalte (*):
+            Bereitstellung der folgenden digitalen Inhalte (*) / die Lieferung
+            der folgenden Ware (*):
           </p>
           <p>
             ______________________________________________
             <br />
             Bestellt am (*) / Vertrag geschlossen am (*):
+            <br />
+            ______________________________________________
+            <br />
+            Erhalten am (*) bei Warenlieferung:
             <br />
             ______________________________________________
             <br />

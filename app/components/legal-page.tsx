@@ -8,6 +8,7 @@ const legalLinks = [
   { label: "AGB", href: "/agb" },
   { label: "Widerruf", href: "/widerruf" },
   { label: "Cookie-Einstellungen", href: "/cookie-einstellungen" },
+  { label: "Versand & Lieferung", href: "/versand-lieferung" },
 ];
 
 export function LegalSection({

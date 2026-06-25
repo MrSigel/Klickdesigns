@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 type ProductFulfillmentSectionProps = {
   className?: string
 }
@@ -52,6 +54,12 @@ export default function ProductFulfillmentSection({ className = '' }: ProductFul
             direkte Bestellung und erfolgt erst nach individueller Prüfung und
             Angebot.
           </p>
+          <Link
+            href="/versand-lieferung"
+            className="mt-4 inline-flex text-[13px] font-semibold text-ruby underline underline-offset-4"
+          >
+            Versand &amp; Lieferung ansehen
+          </Link>
         </div>
       </div>
     </section>

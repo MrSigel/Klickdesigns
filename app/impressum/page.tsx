@@ -11,11 +11,11 @@ export default function ImpressumPage() {
     <LegalPage eyebrow="Rechtliches" title="Impressum">
       <LegalSection title="Angaben gemäß § 5 DDG">
         <p>
+          Klickdesigns
+          <br />
           Enrico Gross
           <br />
           Einzelunternehmen
-          <br />
-          Marke: Klickdesigns
           <br />
           Gerther Straße 76
           <br />
@@ -30,6 +30,13 @@ export default function ImpressumPage() {
           E-Mail: kontakt@klickdesigns.de
           <br />
           Telefon: <a href="tel:+4915563535989" className="text-ruby underline underline-offset-2">+49 155 63535989</a>
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Tätigkeitsbereich">
+        <p>
+          Grafikdesign, Design-Finalisierung, Logo-Aufbereitung,
+          Druckdaten-Erstellung und Produktumsetzung auf Anfrage.
         </p>
       </LegalSection>
 
