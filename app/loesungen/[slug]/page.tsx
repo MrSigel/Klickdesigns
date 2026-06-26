@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const page = getSolutionPage(slug);
 
   if (!page) {
-    return {};
+    notFound();
   }
 
   const url = `${SITE_URL}/loesungen/${page.slug}`;

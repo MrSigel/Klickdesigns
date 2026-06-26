@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const page = getTemplatePage(templateSlug);
 
   if (!page) {
-    return {};
+    notFound();
   }
 
   const url = `${SITE_URL}/vorlagen/${page.slug}`;

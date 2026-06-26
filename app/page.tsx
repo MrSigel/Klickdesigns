@@ -15,6 +15,7 @@ import {
 } from "framer-motion";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import DatabaseErrorState from "./components/DatabaseErrorState";
 import ProductFulfillmentFields from "./components/ProductFulfillmentFields";
 import ProductFulfillmentSection from "./components/ProductFulfillmentSection";
 
@@ -1014,23 +1015,35 @@ type PortfolioRef = {
 function ReferencesSection() {
   const [items, setItems] = useState<PortfolioRef[]>([])
   const [loading, setLoading] = useState(true)
+  const [hasDatabaseError, setHasDatabaseError] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const supabase = createClient()
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase
-        .from('portfolio_references')
-        .select('id,title,description,category,media_type,media_path,alt_text,external_url,link_label')
-        .eq('is_visible', true)
-        .order('sort_order', { ascending: true })
-        .order('created_at', { ascending: false })
-        .limit(24)
-      if (!error && data) setItems(data as PortfolioRef[])
-      setLoading(false)
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from('portfolio_references')
+          .select('id,title,description,category,media_type,media_path,alt_text,external_url,link_label')
+          .eq('is_visible', true)
+          .order('sort_order', { ascending: true })
+          .order('created_at', { ascending: false })
+          .limit(24)
+        if (error) {
+          console.error('Portfolio references load error:', error)
+          setHasDatabaseError(true)
+          return
+        }
+        setItems((data || []) as PortfolioRef[])
+      } catch (error) {
+        console.error('Portfolio references unexpected load error:', error)
+        setHasDatabaseError(true)
+      } finally {
+        setLoading(false)
+      }
     }
     load()
-  }, [supabase])
+  }, [])
 
   const getPublicUrl = (path: string) =>
     `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/portfolio-media/${path}`
@@ -1042,7 +1055,27 @@ function ReferencesSection() {
     el.scrollBy({ left: direction * amount, behavior: 'smooth' })
   }
 
-  if (loading || items.length === 0) return null
+  if (loading) return null
+
+  if (hasDatabaseError) {
+    return (
+      <section id="referenzen" className="border-b border-anthracite/10 bg-white px-5 py-20 sm:px-8">
+        <div className="mx-auto max-w-3xl">
+          <DatabaseErrorState />
+        </div>
+      </section>
+    )
+  }
+
+  if (items.length === 0) {
+    return (
+      <section id="referenzen" className="border-b border-anthracite/10 bg-white px-5 py-20 sm:px-8">
+        <div className="mx-auto max-w-3xl rounded-xl border border-anthracite/10 bg-offwhite p-8 text-center">
+          <p className="text-anthracite/70">Noch keine Einträge vorhanden.</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="referenzen" className="border-b border-anthracite/10 bg-white px-5 py-28 sm:px-8 sm:py-32">

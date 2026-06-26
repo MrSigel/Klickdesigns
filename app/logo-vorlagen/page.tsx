@@ -1,5 +1,6 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import DatabaseErrorState from '../components/DatabaseErrorState'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import dynamic from 'next/dynamic'
 
@@ -28,24 +29,33 @@ const categoryOptions = [
 ]
 
 async function getTemplates(kategorie: string) {
-  const supabase = await createServerClient()
-  let q = supabase
-    .from('logo_templates')
-    .select('id, title, description, png_path, svg_path, category')
-    .eq('is_active', true)
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: false })
-  if (kategorie && kategorie !== 'all') {
-    q = q.eq('category', kategorie)
+  try {
+    const supabase = await createServerClient()
+    let q = supabase
+      .from('logo_templates')
+      .select('id, title, description, png_path, svg_path, category')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false })
+    if (kategorie && kategorie !== 'all') {
+      q = q.eq('category', kategorie)
+    }
+    const { data, error } = await q
+    if (error) {
+      console.error('Logo templates load error:', error)
+      return { templates: [] as LogoTemplate[], hasDatabaseError: true }
+    }
+    return { templates: (data || []) as LogoTemplate[], hasDatabaseError: false }
+  } catch (error) {
+    console.error('Logo templates unexpected load error:', error)
+    return { templates: [] as LogoTemplate[], hasDatabaseError: true }
   }
-  const { data } = await q
-  return (data || []) as LogoTemplate[]
 }
 
 export default async function LogoVorlagenPage({ searchParams }: { searchParams: Promise<{ kategorie?: string }> }) {
   const params = await searchParams
   const kategorie = params.kategorie || 'all'
-  const templates = await getTemplates(kategorie)
+  const { templates, hasDatabaseError } = await getTemplates(kategorie)
 
   const LogoVorlagenInteractive = dynamic(() => import('./LogoVorlagenInteractive'), { ssr: false })
 
@@ -87,9 +97,11 @@ export default async function LogoVorlagenPage({ searchParams }: { searchParams:
           })}
         </div>
 
-        {templates.length === 0 ? (
+        {hasDatabaseError ? (
+          <DatabaseErrorState />
+        ) : templates.length === 0 ? (
           <div className="rounded-xl border border-anthracite/10 bg-white p-12 text-center">
-            <p className="text-anthracite/70">Aktuell werden neue kostenlose Logo-Vorlagen vorbereitet.</p>
+            <p className="text-anthracite/70">Noch keine Einträge vorhanden.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
